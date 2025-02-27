@@ -1,0 +1,41 @@
+{
+  "rootPath": "/Users/ivanandrosovv/diplom/src/diplom/src/main/resources/",
+  "routing": "some routing here idk",
+  "graphs": [
+    {
+      "name": "first_graph",
+      "nodes": [
+        {
+          "name": "FirstNode",
+          "script":  {
+            "path": "scripts/node_one.kts",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "SecondNode",
+          "script":  {
+            "path": "scripts/node_two.kts",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest", "FirstNode"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080",
+            "timeout": 1000
+          }
+        }
+      ]
+    }
+  ]
+}
