@@ -22,7 +22,7 @@ class HttpClient(
 
     override fun send(request: HttpRequest): HttpResponse {
         val headers = LinkedMultiValueMap<String, String>()
-        request.headers!!.forEach { (name, values) ->
+        request.headers?.forEach { (name, values) ->
             values.forEach {
                 headers.add(name, it)
             }

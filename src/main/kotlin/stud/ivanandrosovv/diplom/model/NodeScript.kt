@@ -40,4 +40,30 @@ class NodeScript(
 
         return bindings
     }
+
+    companion object {
+        fun combineScript(sourceCode: String, nodeName: String): String {
+            return """
+                import stud.ivanandrosovv.diplom.model.HttpRequest
+                import stud.ivanandrosovv.diplom.model.NodeScriptResult
+                import stud.ivanandrosovv.diplom.model.NodeRunResult
+                
+                fun discard(reason: String): NodeScriptResult {
+                    val result = NodeScriptResult()
+                    result.discarded = true
+                    result.reason = reason
+                    
+                    return result
+                }
+                
+                fun runScript(): NodeScriptResult {
+                    val ${nodeName.getNameAsVariableName()} = NodeScriptResult()
+                
+                    $sourceCode
+                }
+                
+                runScript()
+            """.trimIndent()
+        }
+    }
 }

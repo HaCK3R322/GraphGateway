@@ -16,8 +16,7 @@ class Graph(
             if (node.critical && result.discarded) {
                 return HttpResponse().apply {
                     statusCode = 400
-                    content = "someError lol"
-                    reason = "ti pidoras"
+                    reason = result.reason
                 }
             }
 

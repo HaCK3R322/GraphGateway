@@ -6,9 +6,9 @@
       "name": "first_graph",
       "nodes": [
         {
-          "name": "FirstNode",
+          "name": "GetName",
           "script":  {
-            "path": "scripts/node_one.kts",
+            "path": "scripts/getName.kts",
             "timeout": 1000
           },
           "critical": true,
@@ -21,14 +21,29 @@
           }
         },
         {
-          "name": "SecondNode",
+          "name": "GetAge",
           "script":  {
-            "path": "scripts/node_two.kts",
+            "path": "scripts/getAge.kts",
             "timeout": 1000
           },
           "critical": true,
           "dependencies": [
-            "HttpRequest", "FirstNode"
+            "HttpRequest", "GetName"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "CreatePerson",
+          "script":  {
+            "path": "scripts/createPerson.kts",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest", "GetName", "GetAge"
           ],
           "client": {
             "discovery": "http://localhost:8080",

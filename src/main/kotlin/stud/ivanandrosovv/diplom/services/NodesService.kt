@@ -7,17 +7,10 @@ import stud.ivanandrosovv.diplom.model.NodeRunResult
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.Node
 import stud.ivanandrosovv.diplom.model.NodeScript
-import stud.ivanandrosovv.diplom.model.NodeScriptResult
 import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
 import stud.ivanandrosovv.diplom.model.configuration.NodeConfiguration
 import stud.ivanandrosovv.diplom.model.configuration.NodeScriptConfiguration
-import stud.ivanandrosovv.diplom.scripting.ScriptingConstants.ALWAYS_ADDITIONAL_SCRIPT_CODE_BEFORE
-import stud.ivanandrosovv.diplom.scripting.ScriptingConstants.getNodeScriptResultAsVarInit
-import stud.ivanandrosovv.diplom.scripting.ScriptingConstants.getNodeScriptResultReturn
-import stud.ivanandrosovv.diplom.utils.NodeUtils.getNameAsVariableName
 import java.io.File
-import javax.script.Bindings
-import javax.script.ScriptEngineManager
 
 @Service
 class NodesService(
@@ -52,10 +45,7 @@ class NodesService(
 
         val nodeSourceCode = File(absolutePath).readText()
 
-        val sourceCode = ALWAYS_ADDITIONAL_SCRIPT_CODE_BEFORE +
-            getNodeScriptResultAsVarInit(nodeName.getNameAsVariableName()) +
-            nodeSourceCode +
-            getNodeScriptResultReturn(nodeName.getNameAsVariableName())
+        val sourceCode = NodeScript.combineScript(nodeSourceCode, nodeName)
 
         return NodeScript(sourceCode, timeout)
     }

@@ -3,6 +3,7 @@ package stud.ivanandrosovv.diplom.model
 import org.springframework.http.HttpStatusCode
 import stud.ivanandrosovv.diplom.clients.Client
 import stud.ivanandrosovv.diplom.model.configuration.NodeConfiguration
+import java.util.logging.Logger
 
 class Node(
     val name: String,
@@ -11,13 +12,25 @@ class Node(
     val dependencies: List<String>,
     val client: Client
 ) {
+    private val log: Logger = Logger.getLogger(this::class.java.name)
+
     fun run(dependenciesNodeRunResults: Map<String, NodeRunResult>, httpRequest: HttpRequest? = null): NodeRunResult {
         if (!dependencies.containsAll(dependenciesNodeRunResults.keys)) throw IllegalArgumentException("Node ${name} does not contain all results of dependencies")
 
-        val request: NodeScriptResult = script.run(dependenciesNodeRunResults, httpRequest)
+        val request: NodeScriptResult = try {
+            script.run(dependenciesNodeRunResults, httpRequest)
+        } catch (exception: Exception) {
+            log.warning("Node ${name} script execution failed")
+            throw exception
+        }
+
+        log.info("Node ${name} script execution successful")
 
         if (request.discarded) {
-            return NodeRunResult.DISCARDED
+            return NodeRunResult(
+                discarded = true,
+                reason = request.reason
+            )
         }
 
         val response: HttpResponse = client.send(request.request)
