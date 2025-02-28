@@ -49,25 +49,24 @@ class ApiController(
         return result.toResponseEntity()
     }
 
-    @PostMapping("/scripts/{graphName}/{nodeName}")
-    fun runNodeScriptOfGraph(
-        servletRequest: HttpServletRequest,
-        @PathVariable("graphName") graphName: String,
-        @PathVariable("nodeName") nodeName: String
-    ): ResponseEntity<NodeScriptResult> {
-        val request = servletRequest.toHttpRequest()
-        val compiledRequest = graphService.runNodeOfGraphScript(graphName, nodeName, request)
-        return ResponseEntity.ok(compiledRequest)
-    }
+    // @PostMapping("/scripts/{graphName}/{nodeName}")
+    // fun runNodeScriptOfGraph(
+    //     servletRequest: HttpServletRequest,
+    //     @PathVariable("graphName") graphName: String,
+    //     @PathVariable("nodeName") nodeName: String
+    // ): ResponseEntity<NodeScriptResult> {
+    //     val request = servletRequest.toHttpRequest()
+    //     val compiledRequest = graphService.runNodeOfGraphScript(graphName, nodeName, request)
+    //     return ResponseEntity.ok(compiledRequest)
+    // }
 
-    @PostMapping("/process/{graphName}/{nodeName}")
+    @PostMapping("/process/{graphName}")
     fun runNodeOfGraph(
         servletRequest: HttpServletRequest,
         @PathVariable("graphName") graphName: String,
-        @PathVariable("nodeName") nodeName: String
     ): ResponseEntity<HttpResponse> {
         val request = servletRequest.toHttpRequest()
-        val response = graphService.runNode(graphName, nodeName, request)
+        val response = graphService.runGraph(graphName, request)
         return ResponseEntity.ok(response)
     }
 

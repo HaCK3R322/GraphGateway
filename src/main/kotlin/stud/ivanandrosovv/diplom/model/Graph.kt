@@ -1,13 +1,32 @@
 package stud.ivanandrosovv.diplom.model
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
+import org.jboss.logging.NDC
+import stud.ivanandrosovv.diplom.services.NodesService
 
 class Graph(
     val name: String,
-    val nodes: Map<String, Node>,
+    val nodes: Map<String, Node>
 ) {
+    fun run(httpRequest: HttpRequest): HttpResponse {
+        val nodeRunResults: MutableMap<String, NodeRunResult> = mutableMapOf()
+
+        nodes.values.forEach { node ->
+            val result = node.run(nodeRunResults, httpRequest)
+
+            if (node.critical && result.discarded) {
+                return HttpResponse().apply {
+                    statusCode = 400
+                    content = "someError lol"
+                    reason = "ti pidoras"
+                }
+            }
+
+            nodeRunResults[node.name] = result
+        }
+
+        return nodeRunResults.values.last().response!!
+    }
+
     companion object {
         fun builder(): Builder {
             return Builder()

@@ -16,6 +16,7 @@ class HttpRequest {
 
     companion object {
         const val DEFAULT_DEPENDENCY_NAME = "HttpRequest"
+        const val DEFAULT_BINDING_NAME = "httpRequest"
     }
 }
 

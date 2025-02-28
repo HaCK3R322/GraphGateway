@@ -9,12 +9,18 @@ import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
+import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
 import java.net.URI
 
-class HttpClient : Client {
+class HttpClient(
+    private val discovery: String,
+    private val timeout: Long
+) : Client {
     private val restTemplate = RestTemplate()
 
-    override fun send(discovery: String, request: HttpRequest): HttpResponse {
+    constructor(configuration: ClientConfiguration) : this(configuration.discovery, configuration.timeout)
+
+    override fun send(request: HttpRequest): HttpResponse {
         val headers = LinkedMultiValueMap<String, String>()
         request.headers!!.forEach { (name, values) ->
             values.forEach {

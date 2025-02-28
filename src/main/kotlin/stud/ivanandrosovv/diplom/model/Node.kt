@@ -1,5 +1,7 @@
 package stud.ivanandrosovv.diplom.model
 
+import org.springframework.http.HttpStatusCode
+import stud.ivanandrosovv.diplom.clients.Client
 import stud.ivanandrosovv.diplom.model.configuration.NodeConfiguration
 
 class Node(
@@ -7,8 +9,24 @@ class Node(
     val script: NodeScript,
     val critical: Boolean = false,
     val dependencies: List<String>,
-    val configuration: NodeConfiguration
+    val client: Client
 ) {
+    fun run(dependenciesNodeRunResults: Map<String, NodeRunResult>, httpRequest: HttpRequest? = null): NodeRunResult {
+        if (!dependencies.containsAll(dependenciesNodeRunResults.keys)) throw IllegalArgumentException("Node ${name} does not contain all results of dependencies")
+
+        val request: NodeScriptResult = script.run(dependenciesNodeRunResults, httpRequest)
+
+        if (request.discarded) {
+            return NodeRunResult.DISCARDED
+        }
+
+        val response: HttpResponse = client.send(request.request)
+
+        val discarded = HttpStatusCode.valueOf(response.statusCode!!).isError
+
+        return NodeRunResult(discarded, response)
+    }
+
     companion object {
         fun builder(): Builder {
             return Builder()
@@ -19,7 +37,7 @@ class Node(
             private var script: NodeScript? = null
             private var critical: Boolean = false
             private var dependencies: List<String>? = null
-            private var config: NodeConfiguration? = null
+            private var client: Client? = null
 
             fun withName(name: String) = apply { this.name = name }
 
@@ -29,7 +47,7 @@ class Node(
 
             fun withDependencies(dependencies: List<String>) = apply { this.dependencies = dependencies }
 
-            fun withConfiguration(configuration: NodeConfiguration) = apply { this.config = configuration }
+            fun withClient(client: Client) = apply { this.client = client }
 
             fun build(): Node {
                 if (name == null) {
@@ -44,7 +62,7 @@ class Node(
                     script = script!!,
                     critical = critical,
                     dependencies = dependencies!!,
-                    configuration = config!!
+                    client = client!!
                 )
             }
         }

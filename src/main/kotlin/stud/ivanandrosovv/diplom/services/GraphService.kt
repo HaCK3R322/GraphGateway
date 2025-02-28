@@ -17,25 +17,10 @@ class GraphService(
 ) {
     var graphs: Map<String, Graph> = mutableMapOf()
 
-    private var client: Client = HttpClient()
+    fun runGraph(graphName: String, httpRequest: HttpRequest): HttpResponse {
+        val graph = graphs[graphName]!!
 
-    fun runNode(graphName: String, nodeName: String, httpRequest: HttpRequest): HttpResponse {
-        val request = runNodeOfGraphScript(graphName, nodeName, httpRequest).request
-
-        val graph = graphs[graphName]
-        val node = graph!!.nodes[nodeName]
-
-        val response = client.send(node!!.configuration.client.discovery, request)
-
-        return response
-    }
-
-    fun runNodeOfGraphScript(graphName: String, nodeName: String, httpRequest: HttpRequest): NodeScriptResult {
-        val graph = graphs[graphName]
-
-        val node = graph!!.nodes[nodeName]
-
-        return nodesService.runNodeScript(httpRequest, node!!, mapOf())
+        return graph.run(httpRequest)
     }
 
     @PostConstruct

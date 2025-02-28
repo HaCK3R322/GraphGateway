@@ -1,7 +1,10 @@
 package stud.ivanandrosovv.diplom.model
 
-class NodeRunResult(
-    val discarded: Boolean,
-    val critical: Boolean,
-    val response: HttpResponse
-)
+data class NodeRunResult(
+    val discarded: Boolean = false,
+    val response: HttpResponse? = null
+) {
+    companion object {
+        val DISCARDED = NodeRunResult(true)
+    }
+}
