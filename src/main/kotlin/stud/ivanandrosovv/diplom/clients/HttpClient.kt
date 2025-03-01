@@ -1,11 +1,8 @@
 package stud.ivanandrosovv.diplom.clients
 
 import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
 import org.springframework.http.RequestEntity
-import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
@@ -14,11 +11,18 @@ import java.net.URI
 
 class HttpClient(
     private val discovery: String,
-    private val timeout: Long
+    private val timeout: Long? = null,
+    private val softTimeout: Long? = null,
+    private val retires: Long? = null
 ) : Client {
     private val restTemplate = RestTemplate()
 
-    constructor(configuration: ClientConfiguration) : this(configuration.discovery, configuration.timeout)
+    constructor(configuration: ClientConfiguration) : this(
+        configuration.discovery,
+        configuration.timeout,
+        configuration.softTimeout,
+        configuration.retires
+    )
 
     override fun send(request: HttpRequest): HttpResponse {
         val headers = LinkedMultiValueMap<String, String>()

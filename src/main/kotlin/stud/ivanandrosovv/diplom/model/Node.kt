@@ -2,7 +2,6 @@ package stud.ivanandrosovv.diplom.model
 
 import org.springframework.http.HttpStatusCode
 import stud.ivanandrosovv.diplom.clients.Client
-import stud.ivanandrosovv.diplom.model.configuration.NodeConfiguration
 import java.util.logging.Logger
 
 class Node(
@@ -23,8 +22,6 @@ class Node(
             log.warning("Node ${name} script execution failed")
             throw exception
         }
-
-        log.info("Node ${name} script execution successful")
 
         if (request.discarded) {
             return NodeRunResult(

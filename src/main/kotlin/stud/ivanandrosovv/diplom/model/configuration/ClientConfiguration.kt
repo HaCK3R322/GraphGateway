@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
 @JsonDeserialize(builder = ClientConfiguration.Companion.Builder::class)
 class ClientConfiguration(
     val discovery: String,
-    val timeout: Long
+    val timeout: Long? = null,
+    val softTimeout: Long? = null,
+    val retires: Long? = null
 ) {
     companion object {
         fun builder(): Builder {
@@ -18,6 +20,8 @@ class ClientConfiguration(
         class Builder {
             private var discovery: String? = null
             private var timeout: Long? = null
+            private var softTimeout: Long? = null
+            private var retires: Long? = null
 
             @JsonProperty("discovery")
             fun withDiscovery(discovery: String) = apply { this.discovery = discovery }
@@ -25,7 +29,18 @@ class ClientConfiguration(
             @JsonProperty("timeout")
             fun withTimeout(timeout: Long) = apply { this.timeout = timeout }
 
-            fun build() = ClientConfiguration(discovery!!, timeout!!)
+            @JsonProperty("softTimeout")
+            fun withSoftTimeout(softTimeout: Long) = apply { this.softTimeout = timeout }
+
+            @JsonProperty("retries")
+            fun withRetires(retires: Long) = apply { this.retires = retires }
+
+            fun build() = ClientConfiguration(
+                discovery!!,
+                timeout,
+                softTimeout,
+                retires
+            )
         }
     }
 }
