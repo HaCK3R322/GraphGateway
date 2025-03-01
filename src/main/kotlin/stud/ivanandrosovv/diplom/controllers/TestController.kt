@@ -18,6 +18,16 @@ class TestController {
         return "Nastya"
     }
 
+    // @GetMapping("/getFavoriteColor")
+    // fun returnFavoriteColor(@RequestParam name: String): String {
+    //     return when (name) {
+    //         "Nastya" -> "blue"
+    //         "Vanya" -> "red"
+    //
+    //         else -> "green"
+    //     }
+    // }
+
     @PostMapping("/createPerson")
     fun thirdNodeResponse(@RequestParam name: String, @RequestParam age: Long): ResponseEntity<Person> {
         return ResponseEntity.ok(Person(name, age))
