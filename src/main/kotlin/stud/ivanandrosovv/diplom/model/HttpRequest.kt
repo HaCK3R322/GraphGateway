@@ -3,8 +3,6 @@ package stud.ivanandrosovv.diplom.model
 import jakarta.servlet.http.HttpServletRequest
 import lombok.Builder
 import lombok.NoArgsConstructor
-import org.springframework.http.HttpMethod
-import org.springframework.http.RequestEntity
 
 @Builder
 @NoArgsConstructor
@@ -15,8 +13,7 @@ class HttpRequest {
     var body: String? = null
 
     companion object {
-        const val DEFAULT_DEPENDENCY_NAME = "HttpRequest"
-        const val DEFAULT_BINDING_NAME = "httpRequest"
+        const val DEFAULT_PROTO_NAME = "HttpRequest"
     }
 }
 

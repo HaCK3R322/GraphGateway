@@ -44,6 +44,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-main-kts</artifactId>
+			<version>1.5.21</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-compiler-embeddable</artifactId>
 			<version>${kotlin.version}</version>
 		</dependency>
@@ -52,6 +57,24 @@
 			<artifactId>kotlin-scripting-compiler-embeddable</artifactId>
 			<version>${kotlin.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.luaj</groupId>
+			<artifactId>luaj-jse</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>3.21.12</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java-util</artifactId>
+			<version>3.21.12</version>
+		</dependency>
+
 
 
 		<dependency>

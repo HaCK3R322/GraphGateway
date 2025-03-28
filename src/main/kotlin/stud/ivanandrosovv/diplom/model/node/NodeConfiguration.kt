@@ -1,8 +1,10 @@
-package stud.ivanandrosovv.diplom.model.configuration
+package stud.ivanandrosovv.diplom.model.node
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
+import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
+import stud.ivanandrosovv.diplom.model.scripting.NodeScriptConfiguration
 
 @JsonDeserialize(builder = NodeConfiguration.Companion.Builder::class)
 class NodeConfiguration(
@@ -10,7 +12,8 @@ class NodeConfiguration(
     val script: NodeScriptConfiguration,
     val critical: Boolean = false,
     val dependencies: List<String>,
-    val client: ClientConfiguration
+    val client: ClientConfiguration,
+    val responseProtoPath: String
 ) {
     companion object {
         fun builder(): Builder {
@@ -24,6 +27,7 @@ class NodeConfiguration(
             private var critical: Boolean = false
             private var dependencies: List<String>? = null
             private var clientConfiguration: ClientConfiguration? = null
+            private var responseProtoPath: String? = null
 
             @JsonProperty("name")
             fun withName(name: String) = apply { this.name = name }
@@ -40,6 +44,9 @@ class NodeConfiguration(
             @JsonProperty("client")
             fun withClientConfiguration(clientConfiguration: ClientConfiguration) = apply { this.clientConfiguration = clientConfiguration }
 
+            @JsonProperty("proto")
+            fun withProtoPath(protoPath: String) = apply { this.responseProtoPath = protoPath }
+
             fun build(): NodeConfiguration {
                 if (name == null) {
                     throw IllegalArgumentException("Name must be provided")
@@ -53,7 +60,8 @@ class NodeConfiguration(
                     script = script!!,
                     critical = critical,
                     dependencies = dependencies!!,
-                    client = clientConfiguration!!
+                    client = clientConfiguration!!,
+                    responseProtoPath = responseProtoPath!!
                 )
             }
         }

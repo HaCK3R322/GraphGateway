@@ -6,10 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
-import stud.ivanandrosovv.diplom.model.Graph
+import stud.ivanandrosovv.diplom.model.graph.Graph
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
-import stud.ivanandrosovv.diplom.model.NodeScriptResult
 import stud.ivanandrosovv.diplom.model.configuration.ApplicationConfiguration
 import stud.ivanandrosovv.diplom.model.toHttpRequest
 import stud.ivanandrosovv.diplom.model.toResponseEntity
@@ -60,15 +59,15 @@ class ApiController(
     //     return ResponseEntity.ok(compiledRequest)
     // }
 
-    @PostMapping("/process/{graphName}")
-    fun runNodeOfGraph(
-        servletRequest: HttpServletRequest,
-        @PathVariable("graphName") graphName: String,
-    ): ResponseEntity<HttpResponse> {
-        val request = servletRequest.toHttpRequest()
-        val response = graphService.runGraph(graphName, request)
-        return ResponseEntity.ok(response)
-    }
+    // @PostMapping("/process/{graphName}")
+    // fun runNodeOfGraph(
+    //     servletRequest: HttpServletRequest,
+    //     @PathVariable("graphName") graphName: String,
+    // ): ResponseEntity<HttpResponse> {
+    //     val request = servletRequest.toHttpRequest()
+    //     val response = graphService.runGraph(graphName, request)
+    //     return ResponseEntity.ok(response)
+    // }
 
     @GetMapping("/configuration")
     fun returnConfiguration(): ResponseEntity<ApplicationConfiguration> {

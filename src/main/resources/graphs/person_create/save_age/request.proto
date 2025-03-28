@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message SaveAge {
+  int64 age = 1;
+}

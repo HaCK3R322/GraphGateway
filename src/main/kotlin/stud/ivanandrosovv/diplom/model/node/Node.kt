@@ -1,41 +1,45 @@
-package stud.ivanandrosovv.diplom.model
+package stud.ivanandrosovv.diplom.model.node
 
 import org.springframework.http.HttpStatusCode
 import stud.ivanandrosovv.diplom.clients.Client
+import stud.ivanandrosovv.diplom.model.HttpRequest
+import stud.ivanandrosovv.diplom.model.HttpResponse
+import stud.ivanandrosovv.diplom.model.scripting.NodeScript
+import stud.ivanandrosovv.diplom.model.scripting.NodeScriptRunResult
 import java.util.logging.Logger
 
 class Node(
     val name: String,
     val script: NodeScript,
-    val critical: Boolean = false,
+    val critical: Boolean = true,
     val dependencies: List<String>,
     val client: Client
 ) {
     private val log: Logger = Logger.getLogger(this::class.java.name)
 
-    fun run(dependenciesNodeRunResults: Map<String, NodeRunResult>, httpRequest: HttpRequest? = null): NodeRunResult {
-        if (!dependencies.containsAll(dependenciesNodeRunResults.keys)) throw IllegalArgumentException("Node ${name} does not contain all results of dependencies")
-
-        val request: NodeScriptResult = try {
-            script.run(dependenciesNodeRunResults, httpRequest)
-        } catch (exception: Exception) {
-            log.warning("Node ${name} script execution failed")
-            throw exception
-        }
-
-        if (request.discarded) {
-            return NodeRunResult(
-                discarded = true,
-                reason = request.reason
-            )
-        }
-
-        val response: HttpResponse = client.send(request.request)
-
-        val discarded = HttpStatusCode.valueOf(response.statusCode!!).isError
-
-        return NodeRunResult(discarded, response)
-    }
+    // fun run(dependenciesNodeRunResults: Map<String, NodeRunResult>, httpRequest: HttpRequest? = null): NodeRunResult {
+    //     if (!dependencies.containsAll(dependenciesNodeRunResults.keys)) throw IllegalArgumentException("Node ${name} does not contain all results of dependencies")
+    //
+    //     val request: NodeScriptRunResult = try {
+    //         script.run(dependenciesNodeRunResults, httpRequest)
+    //     } catch (exception: Exception) {
+    //         log.warning("Node ${name} script execution failed")
+    //         throw exception
+    //     }
+    //
+    //     if (request.discarded) {
+    //         return NodeRunResult(
+    //             discarded = true,
+    //             reason = request.reason
+    //         )
+    //     }
+    //
+    //     val response: HttpResponse = client.send(request.request)
+    //
+    //     val discarded = HttpStatusCode.valueOf(response.statusCode!!).isError
+    //
+    //     return NodeRunResult(discarded, response)
+    // }
 
     companion object {
         fun builder(): Builder {

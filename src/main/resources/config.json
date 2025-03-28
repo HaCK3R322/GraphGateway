@@ -1,14 +1,18 @@
 {
   "rootPath": "/Users/ivanandrosovv/diplom/src/diplom/src/main/resources/",
-  "routing": "some routing here idk",
+  "routing": {
+    "path": "/routing.kts"
+  },
   "graphs": [
     {
-      "name": "first_graph",
+      "name": "person_create",
+      "input": "proto/person_create_graph/input.proto",
       "nodes": [
         {
-          "name": "GetName",
+          "name": "SaveName",
+          "proto": "proto/person_create_graph/saveName.proto",
           "script":  {
-            "path": "scripts/getName.kts",
+            "path": "scripts/saveName.kts",
             "timeout": 1000
           },
           "critical": true,
@@ -16,37 +20,39 @@
             "HttpRequest"
           ],
           "client": {
-            "discovery": "http://localhost:8080",
+            "discovery": "http://localhost:8080/test/nameservice",
             "timeout": 1000
           }
         },
         {
-          "name": "GetAge",
+          "name": "SaveAge",
+          "proto": "proto/person_create_graph/saveAge.proto",
           "script":  {
-            "path": "scripts/getAge.kts",
+            "path": "scripts/saveAge.kts",
             "timeout": 1000
           },
           "critical": true,
           "dependencies": [
-            "HttpRequest", "GetName"
+            "HttpRequest"
           ],
           "client": {
-            "discovery": "http://localhost:8080",
+            "discovery": "http://localhost:8080/test/ageservice",
             "timeout": 1000
           }
         },
         {
-          "name": "CreatePerson",
+          "name": "PersonCreate",
+          "proto": "proto/common/person.proto",
           "script":  {
             "path": "scripts/createPerson.kts",
             "timeout": 1000
           },
           "critical": true,
           "dependencies": [
-            "HttpRequest", "GetName", "GetAge"
+            "HttpRequest", "SaveName", "SaveAge"
           ],
           "client": {
-            "discovery": "http://localhost:8080",
+            "discovery": "http://localhost:8080/test/personservice",
             "timeout": 1000
           }
         }

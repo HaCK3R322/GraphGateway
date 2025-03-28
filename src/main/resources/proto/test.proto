@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+message Person {
+  string id = 1;
+  string age = 2;
+}
+
+message SaveName {
+  string name = 1;
+
+  Person person = 2;
+}
+
+message OtherMessage {
+  string asd = 1;
+}

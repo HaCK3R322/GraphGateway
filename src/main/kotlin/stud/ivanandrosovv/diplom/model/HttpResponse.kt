@@ -12,6 +12,10 @@ class HttpResponse {
     var statusCode: Int? = null
     var content: String? = null
     var reason: String? = null
+
+    companion object {
+        const val DEFAULT_PROTO_NAME = "HttpResponse"
+    }
 }
 
 fun HttpResponse.toResponseEntity(): ResponseEntity<String?> {

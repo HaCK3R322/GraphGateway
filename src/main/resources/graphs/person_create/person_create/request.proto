@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message PersonCreate {
+  string nameId = 1;
+  string ageId = 2;
+}
