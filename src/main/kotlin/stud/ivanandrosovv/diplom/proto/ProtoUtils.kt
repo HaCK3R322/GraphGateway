@@ -4,8 +4,9 @@ import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.DescriptorProtos.DescriptorProto
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
 import com.google.protobuf.Descriptors
+import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.DynamicMessage
-import org.luaj.vm2.LuaError
+import org.jboss.logging.Logger
 import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.OneArgFunction
@@ -28,9 +29,11 @@ object ProtoUtils {
                     }
                 })
 
-                luaTable.set("set_$fieldName", object : TwoArgFunction() {
+                luaTable.set("copy_$fieldName", object : TwoArgFunction() {
                     override fun call(self: LuaValue, arg: LuaValue): LuaValue {
-                        throw LuaError("Use get_$fieldName() to obtain a sub-table and set fields there directly")
+                        val nestedBuilder = builder.getFieldBuilder(field) as DynamicMessage.Builder
+                        copyLuaTableToBuilder(nestedBuilder, arg.checktable())
+                        return LuaValue.NIL
                     }
                 })
             } else {
@@ -52,19 +55,36 @@ object ProtoUtils {
         return luaTable
     }
 
-    private fun convertLuaValueToProtoValue(field: Descriptors.FieldDescriptor, value: LuaValue): Any {
+    private fun convertLuaValueToProtoValue(field: FieldDescriptor, value: LuaValue): Any {
         return when (field.type) {
             Descriptors.FieldDescriptor.Type.STRING -> value.checkstring().toString()
             Descriptors.FieldDescriptor.Type.INT32, Descriptors.FieldDescriptor.Type.SINT32, Descriptors.FieldDescriptor.Type.SFIXED32 -> value.checkint()
             Descriptors.FieldDescriptor.Type.INT64, Descriptors.FieldDescriptor.Type.SINT64, Descriptors.FieldDescriptor.Type.SFIXED64 -> value.checklong()
             Descriptors.FieldDescriptor.Type.FLOAT -> value.checknumber().tofloat()
             Descriptors.FieldDescriptor.Type.DOUBLE -> value.checknumber().todouble()
-            Descriptors.FieldDescriptor.Type.BOOL -> value.toboolean()
+            Descriptors.FieldDescriptor.Type.BOOL -> value.checkboolean()
             else -> throw IllegalArgumentException("Unsupported field type: ${field.type}")
         }
     }
 
-    fun createWrappedDescriptor(
+    private fun copyLuaTableToBuilder(builder: DynamicMessage.Builder, luaTable: LuaTable) {
+        val descriptor = builder.descriptorForType
+        for (field in descriptor.fields) {
+            val fieldName = field.name.split('_').joinToString("") { it.capitalize() }.decapitalize()
+
+            if (field.type == Descriptors.FieldDescriptor.Type.MESSAGE) {
+                val nestedLuaTable = luaTable.get("get_$fieldName").call(luaTable).checktable()
+                val nestedBuilder = builder.newBuilderForField(field) as DynamicMessage.Builder
+                copyLuaTableToBuilder(nestedBuilder, nestedLuaTable)
+                builder.setField(field, nestedBuilder.build())
+            } else {
+                val value = luaTable.get("get_$fieldName").call(luaTable)
+                builder.setField(field, convertLuaValueToProtoValue(field, value))
+            }
+        }
+    }
+
+    fun createNodeRequestDescriptor(
         nodeName: String,
         inputDescriptorProto: DescriptorProtos.FileDescriptorProto,
     ): Descriptors.Descriptor {
@@ -112,16 +132,70 @@ object ProtoUtils {
         return finalDescriptor
     }
 
+    fun createNodeResultDescriptor(
+        nodeName: String,
+        inputDescriptorProto: DescriptorProtos.FileDescriptorProto,
+    ): Descriptors.Descriptor {
+        val wrappedDescriptorProtoBuilder = DescriptorProto.newBuilder()
+        wrappedDescriptorProtoBuilder.name = "Wrapped$nodeName"
+
+        val codeFieldProto = FieldDescriptorProto.newBuilder()
+            .setName("code")
+            .setNumber(1)
+            .setLabel(FieldDescriptorProto.Label.LABEL_REQUIRED)
+            .setType(FieldDescriptorProto.Type.TYPE_INT64)
+
+        val discardedFieldProto = FieldDescriptorProto.newBuilder()
+            .setName("discarded")
+            .setNumber(2)
+            .setLabel(FieldDescriptorProto.Label.LABEL_OPTIONAL)
+            .setType(FieldDescriptorProto.Type.TYPE_BOOL)
+            // .setDefaultValue("false")
+
+        val messageFieldProto = FieldDescriptorProto.newBuilder()
+            .setName("message")
+            .setNumber(3)
+            .setLabel(FieldDescriptorProto.Label.LABEL_REQUIRED)
+            .setType(FieldDescriptorProto.Type.TYPE_MESSAGE)
+            .setTypeName(nodeName)
+
+        wrappedDescriptorProtoBuilder
+            .addField(codeFieldProto)
+            .addField(discardedFieldProto)
+            .addField(messageFieldProto)
+
+        val inputFileDescriptor = Descriptors.FileDescriptor.buildFrom(inputDescriptorProto, arrayOf())
+
+        val finalFileDescriptor = Descriptors.FileDescriptor.buildFrom(
+            DescriptorProtos.FileDescriptorProto.newBuilder()
+                .setSyntax("proto3")
+                .addMessageType(wrappedDescriptorProtoBuilder)
+                .addDependency(nodeName)
+                .build(),
+            arrayOf(inputFileDescriptor)
+        )
+
+        val finalDescriptor = finalFileDescriptor.findMessageTypeByName("Wrapped$nodeName")
+
+        return finalDescriptor
+    }
+
 
     fun createDescriptorProtoFromFile(
         messageName: String,
         nodeDescriptorFilePath: String
     ): DescriptorProtos.FileDescriptorProto {
+        val log = Logger.getLogger("ProtoUtils")
+
+        log.info("Trying to create $nodeDescriptorFilePath")
+
         val fis = FileInputStream(nodeDescriptorFilePath)
 
         val fileDescriptorProto = DescriptorProtos.FileDescriptorSet.parseFrom(fis).getFile(0)
 
-        val message = fileDescriptorProto.messageTypeList.find { it.name == messageName } ?: throw IllegalArgumentException("asdasd")
+        fileDescriptorProto.messageTypeList
+            .find { it.name == messageName }
+            ?: throw IllegalArgumentException("Message $messageName not found in $nodeDescriptorFilePath")
 
         return fileDescriptorProto
     }

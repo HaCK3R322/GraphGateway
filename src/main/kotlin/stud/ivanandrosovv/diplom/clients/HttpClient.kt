@@ -1,6 +1,8 @@
 package stud.ivanandrosovv.diplom.clients
 
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
@@ -26,11 +28,13 @@ class HttpClient(
 
     override fun send(request: HttpRequest): HttpResponse {
         val headers = LinkedMultiValueMap<String, String>()
-        request.headers?.forEach { (name, values) ->
-            values.forEach {
-                headers.add(name, it)
-            }
-        }
+        // request.headers?.forEach { (name, values) ->
+        //     values.forEach {
+        //         headers.add(name, it)
+        //     }
+        // }
+
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 
         val requestEntity = RequestEntity(
             request.body,

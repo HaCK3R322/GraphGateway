@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import stud.ivanandrosovv.diplom.model.graph.Graph
 import stud.ivanandrosovv.diplom.model.HttpRequest
@@ -22,28 +23,13 @@ class ApiController(
     private val graphService: GraphService,
 ) {
 
-    @PostMapping("/process")
-    fun processRequest(servletRequest: HttpServletRequest): ResponseEntity<String?> {
-        val scriptEngine = ScriptEngineManager().getEngineByExtension("kts")
-
+    @PostMapping("/process/{graphName}")
+    fun processRequest(@PathVariable graphName: String, servletRequest: HttpServletRequest): ResponseEntity<String?> {
         val request: HttpRequest = servletRequest.toHttpRequest()
 
-        val bindings = scriptEngine.createBindings()
-        bindings["request"] = request
+        val graph = graphService.graphs[graphName]!!
 
-        val script = """
-            import stud.ivanandrosovv.diplom.model.*
-
-            val response = HttpResponse()
-
-            response.body = request.body
-
-            response
-        """
-
-        val result = scriptEngine.eval(script, bindings) as HttpResponse
-
-        result.statusCode = 200
+        val result = graph.run(request)
 
         return result.toResponseEntity()
     }

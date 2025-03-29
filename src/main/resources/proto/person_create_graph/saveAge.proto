@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-message SaveAge {
-  string id = 1;
-}

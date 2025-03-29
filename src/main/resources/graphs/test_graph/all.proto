@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+message HttpRequest {
+  string name = 1;
+  string age = 2;
+}
+
+message FullName {
+  string surname = 1;
+  string forename = 2;
+  string patronymic = 3;
+}
+
+message PersonSave {
+  string id = 1;
+  int64 age = 2;
+  FullName fullName = 3;
+}

@@ -1,5 +1,6 @@
-local age = HttpRequest.message:get_age()
+SaveAge:set_path("/age")
+SaveAge:set_method("POST")
 
-SaveAge.message:set_age(age)
-SaveAge.message:set_path("/test/ageservice/age")
-SaveAge.message:set_method("POST")
+local age = HttpRequest:get_message():get_age()
+
+SaveAge:get_message():set_age(age)

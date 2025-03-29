@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-message SaveName {
-  string id = 1;
-}

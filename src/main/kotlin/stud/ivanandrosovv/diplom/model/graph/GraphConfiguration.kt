@@ -9,12 +9,11 @@ import stud.ivanandrosovv.diplom.model.node.NodeConfiguration
 class GraphConfiguration(
     val name: String,
     val inputProtoPath: String,
-    val outputProtoPath: String,
-    val outputScriptPath: String,
+    val output: GraphOutputConfiguration,
     val nodesConfigurations: List<NodeConfiguration>,
 ) {
     companion object {
-        fun builder(name: String): Builder {
+        fun builder(): Builder {
             return Builder()
         }
 
@@ -23,8 +22,7 @@ class GraphConfiguration(
             private var name: String? = null
             private var nodesConfigurations: List<NodeConfiguration>? = null
             private var inputProtoPath: String? = null
-            private var outputProtoPath: String? = null
-            private var outputScriptPath: String? = null
+            private var output: GraphOutputConfiguration? = null
 
             @JsonProperty("name")
             fun withName(name: String) = apply { this.name = name }
@@ -32,22 +30,19 @@ class GraphConfiguration(
             @JsonProperty("nodes")
             fun withNodes(nodes: List<NodeConfiguration>) = apply { this.nodesConfigurations = nodes }
 
-            @JsonProperty("inputProto")
+            @JsonProperty("input")
             fun withInputProtoPath(protoPath: String) = apply { this.inputProtoPath = protoPath }
 
-            @JsonProperty("outputProto")
-            fun withOutputProtoPath(protoPath: String) = apply { this.outputProtoPath = protoPath }
+            @JsonProperty("output")
+            fun withOutput(output: GraphOutputConfiguration) = apply { this.output = output }
 
-            @JsonProperty("outputScriptPath")
-            fun withOutputScriptPath(scriptPath: String) = apply { this.outputScriptPath = scriptPath }
 
             fun build(): GraphConfiguration {
                 return GraphConfiguration(
                     name = name!!,
                     inputProtoPath = inputProtoPath!!,
-                    outputProtoPath = outputProtoPath!!,
-                    outputScriptPath = outputScriptPath!!,
-                    nodesConfigurations = nodesConfigurations!!
+                    nodesConfigurations = nodesConfigurations!!,
+                    output = output!!
                 )
             }
         }

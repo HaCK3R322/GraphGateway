@@ -1,5 +1,6 @@
-local name = HttpRequest.message:get_name()
+SaveName:set_path("/name")
+SaveName:set_method("POST")
 
-SaveName.message:set_name(name)
-SaveAge.message:set_path("/test/nameservice/name")
-SaveAge.message:set_method("POST")
+local name = HttpRequest:get_message():get_name()
+
+SaveName:get_message():set_name(name)

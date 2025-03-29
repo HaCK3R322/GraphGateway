@@ -4,7 +4,6 @@ import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import stud.ivanandrosovv.diplom.model.graph.Graph
 import stud.ivanandrosovv.diplom.model.HttpRequest
-import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.graph.GraphConfiguration
 
 @Service
@@ -47,7 +46,7 @@ class GraphService(
 
             graph.nodes.forEach { node ->
                 if (!seenNodesNames.containsAll(
-                        node.value.dependencies,
+                        node.value.dependenciesNames,
                     )
                 ) {
                     throw RuntimeException("Node ${node.value.name} of graph ${graph.name} has illegal dependencies.")
@@ -58,14 +57,16 @@ class GraphService(
     }
 
     private fun buildGraphByConfiguration(graphConfiguration: GraphConfiguration): Graph {
+        val root = configurationService.getConfiguration().rootPath
+
         val graphNodes = graphConfiguration.nodesConfigurations.map { nodesService.constructNode(it) }
 
-
-
-        return Graph
-            .builder()
-            .withName(graphConfiguration.name)
-            .withNodes(graphNodes)
-            .build()
+        return Graph(
+            name = graphConfiguration.name,
+            nodes = graphNodes.associateBy { it.name },
+            inputProtoFilePath = root + graphConfiguration.inputProtoPath,
+            outputProtoFilePath = root + graphConfiguration.output.protoFilePath,
+            outputScriptFilePath = root + graphConfiguration.output.scriptFilePath
+        )
     }
 }

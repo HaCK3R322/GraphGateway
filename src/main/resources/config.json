@@ -6,13 +6,18 @@
   "graphs": [
     {
       "name": "person_create",
-      "input": "proto/person_create_graph/input.proto",
+      "input": "graphs/person_create/input.pb",
+      "output": {
+        "proto": "graphs/person_create/output.pb",
+        "script": "graphs/person_create/person_create_output.lua"
+      },
       "nodes": [
         {
           "name": "SaveName",
-          "proto": "proto/person_create_graph/saveName.proto",
+          "proto": "graphs/person_create/save_name/response.pb",
           "script":  {
-            "path": "scripts/saveName.kts",
+            "path": "graphs/person_create/save_name/request.lua",
+            "proto": "graphs/person_create/save_name/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -26,9 +31,10 @@
         },
         {
           "name": "SaveAge",
-          "proto": "proto/person_create_graph/saveAge.proto",
+          "proto": "graphs/person_create/save_age/response.pb",
           "script":  {
-            "path": "scripts/saveAge.kts",
+            "path": "graphs/person_create/save_age/request.lua",
+            "proto": "graphs/person_create/save_age/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -42,9 +48,10 @@
         },
         {
           "name": "PersonCreate",
-          "proto": "proto/common/person.proto",
+          "proto": "graphs/person_create/person_create/response.pb",
           "script":  {
-            "path": "scripts/createPerson.kts",
+            "path": "graphs/person_create/person_create/request.lua",
+            "proto": "graphs/person_create/person_create/request.pb",
             "timeout": 1000
           },
           "critical": true,

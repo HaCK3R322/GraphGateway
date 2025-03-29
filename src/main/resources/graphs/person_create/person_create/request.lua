@@ -1,8 +1,8 @@
-local nameId = SaveName.message:get_id()
-local ageId = SaveAge.message:get_id()
+PersonCreate:set_path("/person")
+PersonCreate:set_method("POST")
 
-PersonCreate.message:set_nameId(nameId)
-PersonCreate.message:set_ageId(ageId)
+local nameId = SaveName:get_message():get_id()
+local ageId = SaveAge:get_message():get_id()
 
-PersonCreate:set_path("/test/personservice/person")
-PersonCreate.message:set_method("POST")
+PersonCreate:get_message():set_nameId(nameId)
+PersonCreate:get_message():set_ageId(ageId)

@@ -16,11 +16,14 @@ class NodesService(
 ) {
 
     fun constructNode(nodeConfiguration: NodeConfiguration): Node {
+        val root = applicationConfigurationService.getConfiguration().rootPath
+
         val name = nodeConfiguration.name
         val critical = nodeConfiguration.critical
         val dependencies = nodeConfiguration.dependencies
         val script = createScript(name, nodeConfiguration.script)
         val client = createClient(nodeConfiguration.client)
+        val responseProtoPath = root + nodeConfiguration.responseProtoPath
 
         return Node.builder()
             .withName(name)
@@ -28,6 +31,7 @@ class NodesService(
             .withDependencies(dependencies)
             .withScript(script)
             .withClient(client)
+            .withResponseProtoPath(responseProtoPath)
             .build()
     }
 
@@ -38,13 +42,18 @@ class NodesService(
     }
 
     private fun createScript(nodeName: String, script: NodeScriptConfiguration): NodeScript {
-        val absolutePath = applicationConfigurationService.getConfiguration().rootPath + script.scriptPath
+        val absoluteScriptPath = applicationConfigurationService.getConfiguration().rootPath + script.scriptPath
+        val absoluteProtoPath = applicationConfigurationService.getConfiguration().rootPath + script.protoPath
         val timeout = script.timeout
 
-        val nodeSourceCode = File(absolutePath).readText()
+        val nodeSourceCode = File(absoluteScriptPath).readText()
 
         // val sourceCode = NodeScript.combineScript(nodeSourceCode, nodeName)
 
-        return NodeScript(nodeName, nodeSourceCode, "asd", timeout)
+        return NodeScript(
+            nodeName = nodeName,
+            sourceCode = nodeSourceCode,
+            requestProtoPath = absoluteProtoPath
+        )
     }
 }

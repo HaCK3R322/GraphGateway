@@ -1,45 +1,58 @@
 package stud.ivanandrosovv.diplom.model.node
 
-import org.springframework.http.HttpStatusCode
+import com.google.gson.JsonParser
+import com.google.protobuf.Descriptors
+import com.google.protobuf.DynamicMessage
+import com.google.protobuf.util.JsonFormat
+import org.luaj.vm2.LuaTable
 import stud.ivanandrosovv.diplom.clients.Client
-import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.scripting.NodeScript
-import stud.ivanandrosovv.diplom.model.scripting.NodeScriptRunResult
+import stud.ivanandrosovv.diplom.proto.ProtoUtils
 import java.util.logging.Logger
 
 class Node(
     val name: String,
     val script: NodeScript,
     val critical: Boolean = true,
-    val dependencies: List<String>,
-    val client: Client
+    val dependenciesNames: List<String>,
+    val client: Client,
+    responseProtoPath: String
 ) {
     private val log: Logger = Logger.getLogger(this::class.java.name)
 
-    // fun run(dependenciesNodeRunResults: Map<String, NodeRunResult>, httpRequest: HttpRequest? = null): NodeRunResult {
-    //     if (!dependencies.containsAll(dependenciesNodeRunResults.keys)) throw IllegalArgumentException("Node ${name} does not contain all results of dependencies")
-    //
-    //     val request: NodeScriptRunResult = try {
-    //         script.run(dependenciesNodeRunResults, httpRequest)
-    //     } catch (exception: Exception) {
-    //         log.warning("Node ${name} script execution failed")
-    //         throw exception
-    //     }
-    //
-    //     if (request.discarded) {
-    //         return NodeRunResult(
-    //             discarded = true,
-    //             reason = request.reason
-    //         )
-    //     }
-    //
-    //     val response: HttpResponse = client.send(request.request)
-    //
-    //     val discarded = HttpStatusCode.valueOf(response.statusCode!!).isError
-    //
-    //     return NodeRunResult(discarded, response)
-    // }
+    private val nodeResponseDescriptor: Descriptors.Descriptor
+
+    init {
+        val nodeDescriptorProto = ProtoUtils.createDescriptorProtoFromFile(name, responseProtoPath)
+
+        nodeResponseDescriptor = ProtoUtils.createNodeResultDescriptor(name, nodeDescriptorProto)
+    }
+
+    fun run(
+        dependencies: Map<String, LuaTable>,
+    ): NodeRunResult {
+        log.info("Running node $name")
+
+        if (!dependencies.keys.containsAll(dependenciesNames))
+            throw IllegalArgumentException("Node ${name} does not contain all results of dependencies")
+
+        val request = script.run(dependencies)
+
+        val response: HttpResponse = client.send(request.request)
+
+        val contentJson = response.content
+
+        val responseProtoBuilder = DynamicMessage.newBuilder(nodeResponseDescriptor)
+
+        JsonFormat.parser().merge(contentJson, responseProtoBuilder.getFieldBuilder(nodeResponseDescriptor.findFieldByName("message")))
+
+        val responseTable = ProtoUtils.createMessageLinkedLuaTable(responseProtoBuilder)
+
+        return NodeRunResult(
+            responseLinkedTable = responseTable
+        )
+    }
 
     companion object {
         fun builder(): Builder {
@@ -52,6 +65,7 @@ class Node(
             private var critical: Boolean = false
             private var dependencies: List<String>? = null
             private var client: Client? = null
+            private var responseProtoPath: String? = null
 
             fun withName(name: String) = apply { this.name = name }
 
@@ -62,6 +76,8 @@ class Node(
             fun withDependencies(dependencies: List<String>) = apply { this.dependencies = dependencies }
 
             fun withClient(client: Client) = apply { this.client = client }
+
+            fun withResponseProtoPath(responseProtoPath: String) = apply { this.responseProtoPath = responseProtoPath }
 
             fun build(): Node {
                 if (name == null) {
@@ -75,8 +91,9 @@ class Node(
                     name = name!!,
                     script = script!!,
                     critical = critical,
-                    dependencies = dependencies!!,
-                    client = client!!
+                    dependenciesNames = dependencies!!,
+                    client = client!!,
+                    responseProtoPath = responseProtoPath!!
                 )
             }
         }
