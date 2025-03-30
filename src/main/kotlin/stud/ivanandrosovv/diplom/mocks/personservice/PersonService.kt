@@ -1,5 +1,6 @@
 package stud.ivanandrosovv.diplom.mocks.personservice
 
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -23,17 +24,14 @@ class PersonService {
     }
 
     @GetMapping("/test/personservice/person")
-    fun getPersonById(@RequestParam id: Long): Person? {
-        return persons.find { id == it.id }
-    }
+    fun getPersonById(@RequestParam id: Long): ResponseEntity<Any> {
+        val person: Person? = persons.find { it.id == id}
 
-    @GetMapping("/test/personservice/person/finalize")
-    fun finalizePerson(@RequestParam id: Long, @RequestBody request: PersonFinalizeRequest): PersonFinalizeResponse {
-        return PersonFinalizeResponse(
-            id = id,
-            name = request.nameGetResponse.value,
-            age = request.ageGetResponse.value,
-        )
+        if (person == null) {
+            return ResponseEntity.badRequest().body("Person with id $id not found")
+        }
+
+        return ResponseEntity.ok(person)
     }
 }
 

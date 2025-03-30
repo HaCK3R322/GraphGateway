@@ -4,6 +4,6 @@ import org.luaj.vm2.LuaTable
 
 data class NodeRunResult(
     val discarded: Boolean = false,
-    val responseLinkedTable: LuaTable,
+    val responseLinkedTable: LuaTable? = null,
     var reason: String? = null
 )

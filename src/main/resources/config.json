@@ -64,6 +64,67 @@
           }
         }
       ]
+    },
+    {
+      "name": "person_get",
+      "input": "graphs/person_get/input.pb",
+      "output": {
+        "proto": "graphs/person_get/output.pb",
+        "script": "graphs/person_get/person_get_output.lua"
+      },
+      "nodes": [
+        {
+          "name": "GetPerson",
+          "proto": "graphs/person_get/get_person/response.pb",
+          "script":  {
+            "path": "graphs/person_get/get_person/request.lua",
+            "proto": "graphs/person_get/get_person/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/personservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "GetAge",
+          "proto": "graphs/person_get/get_age/response.pb",
+          "script":  {
+            "path": "graphs/person_get/get_age/request.lua",
+            "proto": "graphs/person_get/get_age/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "GetPerson"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/ageservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "GetName",
+          "proto": "graphs/person_get/get_name/response.pb",
+          "script":  {
+            "path": "graphs/person_get/get_name/request.lua",
+            "proto": "graphs/person_get/get_name/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "GetPerson"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        }
+      ]
     }
   ]
 }

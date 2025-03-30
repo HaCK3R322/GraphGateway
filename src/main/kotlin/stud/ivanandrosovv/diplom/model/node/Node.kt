@@ -30,16 +30,31 @@ class Node(
     }
 
     fun run(
-        dependencies: Map<String, LuaTable>,
+        dependencies: Map<String, LuaTable?>,
     ): NodeRunResult {
-        log.info("Running node $name")
+        log.info("      Running node $name")
 
-        if (!dependencies.keys.containsAll(dependenciesNames))
-            throw IllegalArgumentException("Node ${name} does not contain all results of dependencies")
+        if (!dependencies.keys.containsAll(dependenciesNames)) {
+            val missingDependencies = dependenciesNames
+                .filter { !dependencies.containsKey(it) }
+
+            throw IllegalArgumentException("Node ${name} missing dependecies: $missingDependencies")
+        }
 
         val request = script.run(dependencies)
 
+        log.info("          Sending request to ${request.request.path}")
+
         val response: HttpResponse = client.send(request.request)
+
+        log.info("          $name got response with status code ${response.statusCode}")
+
+        if (response.error != null) {
+            return NodeRunResult(
+                discarded = true,
+                reason = response.error
+            )
+        }
 
         val contentJson = response.content
 

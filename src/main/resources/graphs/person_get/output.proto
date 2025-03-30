@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message HttpResponse {
+  int64 id = 1;
+  string name = 2;
+  int64 age = 3;
+}

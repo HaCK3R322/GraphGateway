@@ -106,7 +106,7 @@ object ProtoUtils {
         val messageFieldProto = FieldDescriptorProto.newBuilder()
             .setName("message")
             .setNumber(3)
-            .setLabel(FieldDescriptorProto.Label.LABEL_REQUIRED)
+            .setLabel(FieldDescriptorProto.Label.LABEL_OPTIONAL)
             .setType(FieldDescriptorProto.Type.TYPE_MESSAGE)
             .setTypeName(nodeName)
 

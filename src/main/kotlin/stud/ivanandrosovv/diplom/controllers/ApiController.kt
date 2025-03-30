@@ -1,12 +1,14 @@
 package stud.ivanandrosovv.diplom.controllers
 
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import stud.ivanandrosovv.diplom.model.ErrorResponse
 import stud.ivanandrosovv.diplom.model.graph.Graph
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
@@ -24,12 +26,50 @@ class ApiController(
 ) {
 
     @PostMapping("/process/{graphName}")
-    fun processRequest(@PathVariable graphName: String, servletRequest: HttpServletRequest): ResponseEntity<String?> {
+    fun processRequest(@PathVariable graphName: String, servletRequest: HttpServletRequest): Any {
         val request: HttpRequest = servletRequest.toHttpRequest()
 
         val graph = graphService.graphs[graphName]!!
 
         val result = graph.run(request)
+
+        if (HttpStatusCode.valueOf(result.statusCode!!).isError) {
+            return ResponseEntity.status(result.statusCode!!).body(ErrorResponse(
+                code = result.statusCode!!.toLong(),
+                message = result.error!!
+            ))
+        }
+
+        return result.toResponseEntity()
+    }
+
+    @PostMapping("/process/{graphName}/test")
+    fun processRequestTest(
+        @PathVariable graphName: String,
+        @RequestParam(name = "repeat", required = false, defaultValue = "1") repeat: Long,
+        @RequestParam(name = "parallel", required = false, defaultValue = "false") parallel: Boolean,
+        servletRequest: HttpServletRequest
+    ): Any {
+        val request: HttpRequest = servletRequest.toHttpRequest()
+
+        val graph = graphService.graphs[graphName]!!
+
+        var result = HttpResponse()
+
+        for (i in 0 .. repeat ) {
+            if (parallel) {
+                result = graph.runParallel(request)
+            } else {
+                result = graph.run(request)
+            }
+        }
+
+        if (HttpStatusCode.valueOf(result.statusCode!!).isError) {
+            return ResponseEntity.status(result.statusCode!!).body(ErrorResponse(
+                code = result.statusCode!!.toLong(),
+                message = result.error!!
+            ))
+        }
 
         return result.toResponseEntity()
     }

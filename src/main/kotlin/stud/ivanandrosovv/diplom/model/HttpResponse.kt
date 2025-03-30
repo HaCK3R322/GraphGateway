@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity
 class HttpResponse {
     var statusCode: Int? = null
     var content: String? = null
-    var reason: String? = null
+    var error: String? = null
 
     companion object {
         const val DEFAULT_PROTO_NAME = "HttpResponse"
@@ -23,7 +23,7 @@ fun HttpResponse.toResponseEntity(): ResponseEntity<String?> {
 
     val httpStatusCode = HttpStatusCode.valueOf(statusCode!!)
     if (httpStatusCode.isError) {
-        return ResponseEntity.status(httpStatusCode).body(reason)
+        return ResponseEntity.status(httpStatusCode).body(error)
     }
 
     return  ResponseEntity.status(httpStatusCode).body(content)

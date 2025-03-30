@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message GetPerson {
+  int64 id = 1;
+  string nameId = 2;
+  string ageId = 3;
+}

@@ -5,6 +5,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
@@ -43,11 +44,19 @@ class HttpClient(
             URI(discovery + request.path)
         )
 
-        val responseEntity = restTemplate.exchange(requestEntity, String::class.java)
-
-        val response = HttpResponse().apply {
-            statusCode = responseEntity.statusCode.value()
-            content = responseEntity.body
+        val response = try {
+            val responseEntity = restTemplate.exchange(requestEntity, String::class.java)
+            HttpResponse().apply {
+                statusCode = responseEntity.statusCode.value()
+                content = responseEntity.body
+                error = null
+            }
+        } catch (ex: HttpClientErrorException) {
+            HttpResponse().apply {
+                statusCode = ex.statusCode.value()
+                content = null
+                error = ex.responseBodyAsString
+            }
         }
 
         return response

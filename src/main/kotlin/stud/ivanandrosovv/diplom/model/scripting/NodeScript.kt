@@ -8,7 +8,6 @@ import org.luaj.vm2.LuaTable
 import org.luaj.vm2.lib.jse.JsePlatform
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
-import stud.ivanandrosovv.diplom.model.node.NodeRunResult
 import stud.ivanandrosovv.diplom.proto.ProtoUtils
 import java.time.Clock
 import java.time.Duration
@@ -43,7 +42,7 @@ class NodeScript(
     }
 
     fun run(
-        dependencies: Map<String, LuaTable>
+        dependencies: Map<String, LuaTable?>
     ): NodeScriptRunResult {
         val start = Instant.now(clock)
 
@@ -76,7 +75,7 @@ class NodeScript(
             this.body = body
         }
 
-        log.info("Node $nodeName script loaded in ${Duration.between(start, Instant.now()).toMillis()} ms")
+        log.info("          Node $nodeName script loaded in ${Duration.between(start, Instant.now()).toMillis()} ms")
 
         return NodeScriptRunResult(
             request = httpRequest,
@@ -85,7 +84,7 @@ class NodeScript(
         )
     }
 
-    fun runAsResponse(dependencies: Map<String, LuaTable>): HttpResponse {
+    fun runAsResponse(dependencies: Map<String, LuaTable?>): HttpResponse {
         val nodeMessageBuilder = DynamicMessage.newBuilder(nodeDescriptor)
         val nodeLinkedTable = ProtoUtils.createMessageLinkedLuaTable(nodeMessageBuilder)
 
@@ -112,7 +111,7 @@ class NodeScript(
         val httpResponse = HttpResponse().apply {
             statusCode = code.toInt()
             content = body
-            reason = null
+            error = null
         }
 
         return httpResponse
