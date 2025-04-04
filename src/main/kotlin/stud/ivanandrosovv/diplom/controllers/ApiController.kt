@@ -1,7 +1,9 @@
 package stud.ivanandrosovv.diplom.controllers
 
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -74,26 +76,15 @@ class ApiController(
         return result.toResponseEntity()
     }
 
-    // @PostMapping("/scripts/{graphName}/{nodeName}")
-    // fun runNodeScriptOfGraph(
-    //     servletRequest: HttpServletRequest,
-    //     @PathVariable("graphName") graphName: String,
-    //     @PathVariable("nodeName") nodeName: String
-    // ): ResponseEntity<NodeScriptResult> {
-    //     val request = servletRequest.toHttpRequest()
-    //     val compiledRequest = graphService.runNodeOfGraphScript(graphName, nodeName, request)
-    //     return ResponseEntity.ok(compiledRequest)
-    // }
+    @GetMapping("/draw/{graphName}")
+    fun drawGraph(@PathVariable graphName: String): ResponseEntity<Any> {
+        val imageBytes = graphService.drawGraph(graphName)
 
-    // @PostMapping("/process/{graphName}")
-    // fun runNodeOfGraph(
-    //     servletRequest: HttpServletRequest,
-    //     @PathVariable("graphName") graphName: String,
-    // ): ResponseEntity<HttpResponse> {
-    //     val request = servletRequest.toHttpRequest()
-    //     val response = graphService.runGraph(graphName, request)
-    //     return ResponseEntity.ok(response)
-    // }
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"graph.png\"")
+            .contentType(MediaType.IMAGE_PNG)
+            .body(imageBytes)
+    }
 
     @GetMapping("/configuration")
     fun returnConfiguration(): ResponseEntity<ApplicationConfiguration> {
@@ -101,25 +92,13 @@ class ApiController(
     }
 
     @GetMapping("/graphs")
-    fun returnGraphs(): ResponseEntity<Map<String, Graph>> {
-        return ResponseEntity.ok(graphService.graphs)
+    fun returnGraphs(): ResponseEntity<String> {
+        var response = ""
+
+        graphService.graphs
+            .keys
+            .forEach { response += it + "\n" }
+
+        return ResponseEntity.ok(response)
     }
-
-
-    // @RequestMapping(
-    //     value = ["/**"],
-    //     method = [
-    //         RequestMethod.GET,
-    //         RequestMethod.PUT,
-    //         RequestMethod.POST,
-    //         RequestMethod.DELETE,
-    //         RequestMethod.PATCH,
-    //         RequestMethod.HEAD,
-    //         RequestMethod.OPTIONS,
-    //         RequestMethod.TRACE
-    //     ]
-    // )
-    // fun processRequest(request: HttpServletRequest): String {
-    //     return applicationConfigurationService.getConfiguration().rootPath ?: "cannot load conf"
-    // }
 }

@@ -7,5 +7,7 @@ import org.springframework.boot.runApplication
 class DiplomApplication
 
 fun main(args: Array<String>) {
+	System.setProperty("org.graphstream.ui", "swing")
+
 	runApplication<DiplomApplication>(*args)
 }

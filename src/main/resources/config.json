@@ -1,8 +1,5 @@
 {
   "rootPath": "/Users/ivanandrosovv/diplom/src/diplom/src/main/resources/",
-  "routing": {
-    "path": "/routing.kts"
-  },
   "graphs": [
     {
       "name": "person_create",
