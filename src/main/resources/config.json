@@ -125,6 +125,186 @@
           }
         }
       ]
+    },
+    {
+      "name": "test_parallelization_graph",
+      "input": "graphs/test_parallelization_graph/input.pb",
+      "output": {
+        "proto": "graphs/test_parallelization_graph/output.pb",
+        "script": "graphs/test_parallelization_graph/test_parallelization_graph_output.lua"
+      },
+      "nodes": [
+        {
+          "name": "NameSave1",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request1.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "NameSave2",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request2.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "NameSave3",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request3.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "NameSave4",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request4.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "NameSave5",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request5.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "NameSave6",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request6.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "NameSave7",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request7.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "NameSave8",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request8.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "NameSave9",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request9.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "NameSave10",
+          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "script":  {
+            "path": "graphs/test_parallelization_graph/name_save/request10.lua",
+            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice",
+            "timeout": 1000
+          }
+        }
+      ]
     }
   ]
 }

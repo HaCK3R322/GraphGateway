@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+message NameSave1 {
+  string name = 1;
+}
+
+message NameSave2 {
+  string name = 1;
+}
+
+message NameSave3 {
+  string name = 1;
+}
+
+message NameSave4 {
+  string name = 1;
+}
+
+message NameSave5 {
+  string name = 1;
+}
+
+message NameSave6 {
+  string name = 1;
+}
+
+message NameSave7 {
+  string name = 1;
+}
+
+message NameSave8 {
+  string name = 1;
+}
+
+message NameSave9 {
+  string name = 1;
+}
+
+message NameSave10 {
+  string name = 1;
+}

@@ -5,7 +5,6 @@ import com.google.protobuf.DynamicMessage
 import com.google.protobuf.util.JsonFormat
 import org.jboss.logging.Logger
 import org.luaj.vm2.LuaTable
-import org.springframework.web.servlet.function.ServerResponse.async
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.node.Node
@@ -54,7 +53,8 @@ class Graph(
 
         val requestBuilder = DynamicMessage.newBuilder(inputProtoDescriptor)
 
-        JsonFormat.parser().merge(request.body, requestBuilder.getFieldBuilder(inputProtoDescriptor.findFieldByName("message")))
+        JsonFormat.parser()
+            .merge(request.body, requestBuilder.getFieldBuilder(inputProtoDescriptor.findFieldByName("message")))
 
         val requestLinkedTable = ProtoUtils.createMessageLinkedLuaTable(requestBuilder)
 
@@ -95,7 +95,8 @@ class Graph(
         log.info("Running graph $name")
 
         val requestBuilder = DynamicMessage.newBuilder(inputProtoDescriptor)
-        JsonFormat.parser().merge(request.body, requestBuilder.getFieldBuilder(inputProtoDescriptor.findFieldByName("message")))
+        JsonFormat.parser()
+            .merge(request.body, requestBuilder.getFieldBuilder(inputProtoDescriptor.findFieldByName("message")))
         val requestLinkedTable = ProtoUtils.createMessageLinkedLuaTable(requestBuilder)
 
         val nodeRunResults: ConcurrentHashMap<String, NodeRunResult> = ConcurrentHashMap()
@@ -138,7 +139,6 @@ class Graph(
                         nodes.values.filter { it.dependenciesNames.contains(node.name) }.forEach {
                             latchMap[it.name]?.countDown()
                         }
-
                     } catch (e: Exception) {
                         log.error("Error running node ${node.name}", e)
                     }
@@ -149,13 +149,7 @@ class Graph(
         executor.shutdown()
         executor.awaitTermination(Long.MAX_VALUE, java.util.concurrent.TimeUnit.NANOSECONDS)
 
-        val response = script.runAsResponse(
-            nodeRunResults
-                .map { it.key to it.value.responseLinkedTable }
-                .toMutableList()
-                .apply { add("HttpRequest" to requestLinkedTable) }
-                .toMap()
-        )
+        val response = script.runAsResponse(nodeRunResultsTables)
 
         return response
     }
