@@ -44,20 +44,8 @@ class PersonCreateResponse(
     val id: Long
 )
 
-class PersonFinalizeRequest(
-    val id: Long,
-    val nameGetResponse: NameGetResponse,
-    val ageGetResponse: AgeGetResponse
-)
-
 class Person(
     val id: Long,
     val nameId: String,
     val ageId: String
-)
-
-class PersonFinalizeResponse(
-    val id: Long,
-    val name: String,
-    val age: Long
 )

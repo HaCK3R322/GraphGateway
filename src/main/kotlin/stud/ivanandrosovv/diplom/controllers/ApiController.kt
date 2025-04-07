@@ -58,7 +58,7 @@ class ApiController(
 
         var result = HttpResponse()
 
-        for (i in 0 .. repeat ) {
+        for (i in 1 .. repeat ) {
             if (parallel) {
                 result = graph.runParallel(request)
             } else {

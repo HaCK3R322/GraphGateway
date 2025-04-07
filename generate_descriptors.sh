@@ -1,0 +1,1 @@
+find test_parallelization_graph -name '*.proto' -exec sh -c 'protoc --descriptor_set_out="${1%.proto}.pb" --include_imports "$1"' _ {} \;
