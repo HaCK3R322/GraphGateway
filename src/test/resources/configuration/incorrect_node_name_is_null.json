@@ -1,0 +1,29 @@
+{
+  "rootPath": "/Users/ivanandrosovv/diplom/src/diplom/src/main/resources/",
+  "graphs": [
+    {
+      "name": "person_create",
+      "input": "graphs/person_create/input.pb",
+      "output": {
+        "proto": "graphs/person_create/output.pb",
+        "script": "graphs/person_create/person_create_output.lua"
+      },
+      "nodes": [
+        {
+          "name": null,
+          "proto": "graphs/person_create/save_name/response.pb",
+          "script": {
+            "path": "graphs/person_create/save_name/request.lua",
+            "proto": "graphs/person_create/save_name/request.pb"
+          },
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:8080/test/nameservice"
+          }
+        }
+      ]
+    }
+  ]
+}

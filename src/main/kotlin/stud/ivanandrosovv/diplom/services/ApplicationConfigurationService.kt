@@ -15,6 +15,8 @@ import stud.ivanandrosovv.diplom.model.scripting.NodeScriptRunResult
 import stud.ivanandrosovv.diplom.proto.ProtoUtils
 import java.io.File
 import java.util.logging.Logger
+import javax.naming.ConfigurationException
+import javax.naming.NamingException
 
 @Service
 class ApplicationConfigurationService(
@@ -36,51 +38,24 @@ class ApplicationConfigurationService(
         configuration = loadConfiguration(configurationPath)
     }
 
-    // private fun example(): NodeScriptRunResult {
-    //     val protoPath = "/Users/ivanandrosovv/diplom/src/diplom/src/main/resources/graphs/test_graph/all_desc.pb"
-    //     val testLuaPath = "/Users/ivanandrosovv/diplom/src/diplom/src/main/resources/graphs/test_graph/test.lua"
-    //
-    //     val nodeScript = NodeScript(
-    //         nodeName = "PersonSave",
-    //         requestProtoPath = protoPath,
-    //         sourceCode = File(testLuaPath).readText()
-    //     )
-    //
-    //     val fullNameDescriptorProto = ProtoUtils.createDescriptorProtoFromFile("FullName", protoPath)
-    //     val fullNameWrappedDescriptor = ProtoUtils.createNodeResultDescriptor("FullName", fullNameDescriptorProto)
-    //     val fullNameBuilder = DynamicMessage.newBuilder(fullNameWrappedDescriptor)
-    //
-    //     val fullNameJson = """
-    //         {
-    //             "code": 200,
-    //             "discarded": false,
-    //             "message": {
-    //                 "forename": "Андросов",
-    //                 "surname": "Иван",
-    //                 "patronymic": "Сергеевич"
-    //             }
-    //         }
-    //     """.trimIndent()
-    //
-    //     JsonFormat.parser().merge(fullNameJson, fullNameBuilder)
-    //
-    //     val fullNameLinkedTable = ProtoUtils.createMessageLinkedLuaTable(fullNameBuilder)
-    //
-    //     val fullNameRunResult = NodeRunResult(
-    //         response = NodeMessageRepresentation(
-    //             nodeLinkedTable = fullNameLinkedTable,
-    //         )
-    //     )
-    //
-    //     val request = nodeScript.run(
-    //         mapOf("FullName" to fullNameRunResult)
-    //     )
-    //
-    //     return request
-    // }
-
-    private fun loadConfiguration(configurationPath: String): ApplicationConfiguration {
+    fun loadConfiguration(configurationPath: String): ApplicationConfiguration {
         val configuration = objectMapper.readValue(File(configurationPath), ApplicationConfiguration::class.java)
+
+        val graphsNamesSet = mutableSetOf<String>()
+        configuration.graphs.forEach {
+            if (graphsNamesSet.contains(it.name)) {
+                throw NamingException("Graph names must be unique, but ${it.name} is repeated")
+            }
+            graphsNamesSet.add(it.name)
+
+            val nodesInGraphNamesSet = mutableSetOf<String>()
+            it.nodesConfigurations.forEach { nodeConf ->
+                if (nodesInGraphNamesSet.contains(nodeConf.name)) {
+                    throw NamingException("Nodes names must be unique in graph scope, but ${nodeConf.name} is repeated")
+                }
+                nodesInGraphNamesSet.add(nodeConf.name)
+            }
+        }
 
         return configuration
     }

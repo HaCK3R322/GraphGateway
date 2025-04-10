@@ -30,7 +30,7 @@ class ClientConfiguration(
             fun withTimeout(timeout: Long) = apply { this.timeout = timeout }
 
             @JsonProperty("softTimeout")
-            fun withSoftTimeout(softTimeout: Long) = apply { this.softTimeout = timeout }
+            fun withSoftTimeout(softTimeout: Long) = apply { this.softTimeout = softTimeout }
 
             @JsonProperty("retries")
             fun withRetires(retires: Long) = apply { this.retires = retires }

@@ -1,0 +1,74 @@
+type: object
+properties:
+  rootPath:
+    type: string
+  graphs:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        input:
+          type: string
+        output:
+          type: object
+          properties:
+            proto:
+              type: string
+            script:
+              type: string
+          required:
+            - proto
+            - script
+        nodes:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              proto:
+                type: string
+              script:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  proto:
+                    type: string
+                  timeout:
+                    type: number
+                required:
+                  - path
+                  - proto
+              critical:
+                type: boolean
+              dependencies:
+                type: array
+                items:
+                  type: string
+              client:
+                type: object
+                properties:
+                  discovery:
+                    type: string
+                  timeout:
+                    type: number
+                required:
+                  - discovery
+            required:
+              - name
+              - proto
+              - script
+              - critical
+              - dependencies
+              - client
+      required:
+        - name
+        - input
+        - output
+        - nodes
+required:
+  - rootPath
+  - graphs
