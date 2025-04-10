@@ -1,9 +1,8 @@
-package stud.ivanandrosovv.diplom.model.graph
+package stud.ivanandrosovv.diplom.model.configuration
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
-import stud.ivanandrosovv.diplom.model.node.NodeConfiguration
 
 @JsonDeserialize(builder = GraphOutputConfiguration.Companion.Builder::class)
 class GraphOutputConfiguration(

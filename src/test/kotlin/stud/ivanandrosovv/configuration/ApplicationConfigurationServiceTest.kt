@@ -11,10 +11,10 @@ import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
 import stud.ivanandrosovv.diplom.model.configuration.ApplicationConfiguration
 import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
-import stud.ivanandrosovv.diplom.model.graph.GraphConfiguration
-import stud.ivanandrosovv.diplom.model.graph.GraphOutputConfiguration
-import stud.ivanandrosovv.diplom.model.node.NodeConfiguration
-import stud.ivanandrosovv.diplom.model.scripting.NodeScriptConfiguration
+import stud.ivanandrosovv.diplom.model.configuration.GraphConfiguration
+import stud.ivanandrosovv.diplom.model.configuration.GraphOutputConfiguration
+import stud.ivanandrosovv.diplom.model.configuration.NodeConfiguration
+import stud.ivanandrosovv.diplom.model.configuration.NodeScriptConfiguration
 import stud.ivanandrosovv.diplom.services.ApplicationConfigurationService
 import java.util.stream.Stream
 import javax.naming.NamingException

@@ -1,10 +1,8 @@
-package stud.ivanandrosovv.diplom.model.node
+package stud.ivanandrosovv.diplom.model.configuration
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
-import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
-import stud.ivanandrosovv.diplom.model.scripting.NodeScriptConfiguration
 
 @JsonDeserialize(builder = NodeConfiguration.Companion.Builder::class)
 class NodeConfiguration(

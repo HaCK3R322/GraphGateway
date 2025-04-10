@@ -5,15 +5,12 @@ import org.graphstream.graph.implementations.SingleGraph
 import org.graphstream.stream.file.FileSinkImages
 import org.graphstream.stream.file.FileSinkImages.OutputType
 import org.graphstream.stream.file.images.Resolutions
-import org.graphstream.ui.layout.Layout
-import org.graphstream.ui.layout.springbox.BarnesHutLayout
-import org.graphstream.ui.layout.springbox.implementations.LinLog
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
 import org.springframework.stereotype.Service
 import stud.ivanandrosovv.diplom.model.graph.Graph
 import stud.ivanandrosovv.diplom.model.HttpRequest
-import stud.ivanandrosovv.diplom.model.graph.GraphConfiguration
+import stud.ivanandrosovv.diplom.model.configuration.GraphConfiguration
 import java.nio.file.Files
 import java.nio.file.Path
 

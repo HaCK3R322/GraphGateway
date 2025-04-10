@@ -1,4 +1,4 @@
-package stud.ivanandrosovv.diplom.model.scripting
+package stud.ivanandrosovv.diplom.model.configuration
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize

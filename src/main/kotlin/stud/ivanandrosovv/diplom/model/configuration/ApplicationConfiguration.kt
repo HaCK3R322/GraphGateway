@@ -3,7 +3,6 @@ package stud.ivanandrosovv.diplom.model.configuration
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
-import stud.ivanandrosovv.diplom.model.graph.GraphConfiguration
 
 @JsonDeserialize(builder = ApplicationConfiguration.Companion.Builder::class)
 class ApplicationConfiguration (
