@@ -2,5 +2,5 @@ syntax = "proto3";
 
 message HttpRequest {
   string name = 1;
-  string age = 2;
+  int64 age = 2;
 }

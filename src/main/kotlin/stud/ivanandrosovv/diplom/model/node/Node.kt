@@ -3,12 +3,14 @@ package stud.ivanandrosovv.diplom.model.node
 import com.google.gson.JsonParser
 import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
+import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.util.JsonFormat
 import org.luaj.vm2.LuaTable
 import stud.ivanandrosovv.diplom.clients.Client
 import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.scripting.NodeScript
 import stud.ivanandrosovv.diplom.proto.ProtoUtils
+import stud.ivanandrosovv.diplom.proto.ProtoUtils.createDiscardedLuaTable
 import java.util.logging.Logger
 
 class Node(
@@ -31,28 +33,36 @@ class Node(
 
     fun run(
         dependencies: Map<String, LuaTable?>,
+        trace: String
     ): NodeRunResult {
-        log.info("      Running node $name")
-
         if (!dependencies.keys.containsAll(dependenciesNames)) {
             val missingDependencies = dependenciesNames
                 .filter { !dependencies.containsKey(it) }
 
-            throw IllegalArgumentException("Node ${name} missing dependecies: $missingDependencies")
+            throw IllegalArgumentException("Node $name missing dependencies: $missingDependencies")
         }
 
-        val request = script.run(dependencies)
+        val request = script.run(dependencies, trace)
 
-        log.info("          Sending request to ${request.request.path}")
+        if (request.discarded) {
+            return NodeRunResult(
+                discarded = true,
+                reason = request.reason ?: "Discarded in request script",
+                responseLinkedTable = createDiscardedLuaTable()
+            )
+        }
 
-        val response: HttpResponse = client.send(request.request)
+        log.info("[$trace][$name] Sending request to ${request.request!!.path}")
 
-        log.info("          $name got response with status code ${response.statusCode}")
+        val response: HttpResponse = client.send(request.request!!)
+
+        log.info("[$trace][$name] Got response with status code ${response.statusCode}")
 
         if (response.error != null) {
             return NodeRunResult(
                 discarded = true,
-                reason = response.error
+                reason = response.error,
+                responseLinkedTable = createDiscardedLuaTable()
             )
         }
 
@@ -60,7 +70,15 @@ class Node(
 
         val responseProtoBuilder = DynamicMessage.newBuilder(nodeResponseDescriptor)
 
-        JsonFormat.parser().merge(contentJson, responseProtoBuilder.getFieldBuilder(nodeResponseDescriptor.findFieldByName("message")))
+        try {
+            JsonFormat.parser().merge(contentJson, responseProtoBuilder.getFieldBuilder(nodeResponseDescriptor.findFieldByName("message")))
+        } catch (e: InvalidProtocolBufferException) {
+            return NodeRunResult(
+                discarded = true,
+                reason = "Mapping response on its proto failed: ${e.message}",
+                responseLinkedTable = createDiscardedLuaTable()
+            )
+        }
 
         val responseTable = ProtoUtils.createMessageLinkedLuaTable(responseProtoBuilder)
 
@@ -114,3 +132,5 @@ class Node(
         }
     }
 }
+
+class NodeRunException(message: String) : Exception(message)

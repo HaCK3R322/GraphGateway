@@ -4,6 +4,7 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
 import com.google.protobuf.util.JsonFormat
 import org.jboss.logging.Logger
+import org.jetbrains.kotlin.ir.types.IdSignatureValues.result
 import org.luaj.vm2.LuaTable
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
@@ -15,6 +16,9 @@ import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.math.min
 
 class Graph(
     val name: String,
@@ -66,7 +70,7 @@ class Graph(
                 .apply { add("HttpRequest" to requestLinkedTable) }
                 .toMap()
 
-            val result = node.run(nodeDependencies)
+            val result = node.run(nodeDependencies, name)
 
             if (node.critical && result.discarded) {
                 log.warn("Critical node ${node.name} fail. Graph stop")
@@ -85,7 +89,8 @@ class Graph(
                 .map { it.key to it.value.responseLinkedTable }
                 .toMutableList()
                 .apply { add("HttpRequest" to requestLinkedTable) }
-                .toMap()
+                .toMap(),
+            name
         )
 
         return response
@@ -104,7 +109,7 @@ class Graph(
         nodeRunResultsTables["HttpRequest"] = requestLinkedTable
 
         // Creating a fixed thread pool for parallel execution
-        val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+        val executor = Executors.newFixedThreadPool(min(Runtime.getRuntime().availableProcessors(), nodes.size))
 
         // Tracking nodes that are ready to run using CountDownLatch
         val latchMap: ConcurrentHashMap<String, CountDownLatch> = ConcurrentHashMap()
@@ -117,28 +122,41 @@ class Graph(
             }
         }
 
+        val isCriticalNodeFail = AtomicBoolean(false)
+        val criticalFailReason = AtomicReference("unknown")
+
         nodes.values.forEach { node ->
             latchMap[node.name]?.let { latch ->
                 executor.submit {
                     try {
                         latch.await() // Wait for all dependencies to complete
+
+                        if (isCriticalNodeFail.get()) {
+                            return@submit
+                        }
+
                         val nodeDependencies = nodeRunResultsTables.filter { node.dependenciesNames.contains(it.key) }
 
-                        val result = node.run(nodeDependencies)
+                        val result = node.run(nodeDependencies, name)
 
                         nodeRunResults[node.name] = result
-                        nodeRunResultsTables[node.name] = result.responseLinkedTable
 
                         if (node.critical && result.discarded) {
-                            log.warn("Critical node ${node.name} failed. Graph stopping.")
+                            log.error("[$name] Critical node ${node.name} failed. Graph stopping.")
+                            isCriticalNodeFail.set(true)
+                            criticalFailReason.set(result.reason)
                             executor.shutdownNow()
                             return@submit
                         }
+
+                        nodeRunResultsTables[node.name] = result.responseLinkedTable
 
                         // Notify all dependent nodes by decrementing their latch
                         nodes.values.filter { it.dependenciesNames.contains(node.name) }.forEach {
                             latchMap[it.name]?.countDown()
                         }
+                    } catch (e: InterruptedException) {
+                        log.warn("[$name][${node.name}] Was interrupted.")
                     } catch (e: Exception) {
                         log.error("Error running node ${node.name}", e)
                     }
@@ -149,7 +167,14 @@ class Graph(
         executor.shutdown()
         executor.awaitTermination(Long.MAX_VALUE, java.util.concurrent.TimeUnit.NANOSECONDS)
 
-        val response = script.runAsResponse(nodeRunResultsTables)
+        if (isCriticalNodeFail.get()) {
+            return HttpResponse().apply {
+                statusCode = 400
+                error = criticalFailReason.get()
+            }
+        }
+
+        val response = script.runAsResponse(nodeRunResultsTables, name)
 
         return response
     }

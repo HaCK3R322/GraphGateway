@@ -42,7 +42,8 @@ class NodeScript(
     }
 
     fun run(
-        dependencies: Map<String, LuaTable?>
+        dependencies: Map<String, LuaTable?>,
+        trace: String
     ): NodeScriptRunResult {
         val start = Instant.now(clock)
 
@@ -59,9 +60,24 @@ class NodeScript(
 
         val message: DynamicMessage = nodeMessageBuilder.build()
 
-        val messageFieldDescriptor = nodeMessageBuilder.descriptorForType.findFieldByName("message")
-        val pathFieldDescriptor = nodeMessageBuilder.descriptorForType.findFieldByName("path")
+        val discardedFieldDescriptor = nodeMessageBuilder.descriptorForType.findFieldByName("discarded")
+        val discarded = message.getField(discardedFieldDescriptor) as Boolean
+
+        if (discarded) {
+            val reasonFieldDescriptor = nodeMessageBuilder.descriptorForType.findFieldByName("reason")
+            val reason = message.getField(reasonFieldDescriptor) as String?
+
+            return NodeScriptRunResult(
+                discarded = true,
+                reason = reason ?: "Node discarded",
+                request = null,
+            )
+        }
+
+
         val methodFieldDescriptor = nodeMessageBuilder.descriptorForType.findFieldByName("method")
+        val pathFieldDescriptor = nodeMessageBuilder.descriptorForType.findFieldByName("path")
+        val messageFieldDescriptor = nodeMessageBuilder.descriptorForType.findFieldByName("message")
 
         val nestedMessage = message.getField(messageFieldDescriptor) as DynamicMessage
 
@@ -75,7 +91,7 @@ class NodeScript(
             this.body = body
         }
 
-        log.info("          Node $nodeName script loaded in ${Duration.between(start, Instant.now()).toMillis()} ms")
+        log.info("[$trace][$nodeName] script loaded in ${Duration.between(start, Instant.now()).toMillis()} ms")
 
         return NodeScriptRunResult(
             request = httpRequest,
@@ -84,7 +100,10 @@ class NodeScript(
         )
     }
 
-    fun runAsResponse(dependencies: Map<String, LuaTable?>): HttpResponse {
+    fun runAsResponse(
+        dependencies: Map<String, LuaTable?>,
+        trace: String
+    ): HttpResponse {
         val nodeMessageBuilder = DynamicMessage.newBuilder(nodeDescriptor)
         val nodeLinkedTable = ProtoUtils.createMessageLinkedLuaTable(nodeMessageBuilder)
 

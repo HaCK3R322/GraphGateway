@@ -1,0 +1,27 @@
+rootPath: "/Users/ivanandrosovv/diplom/src/diplom/src/main/resources/"
+graphs:
+  person_create:
+    input: "graphs/person_create/input.pb"
+
+    nodes:
+      SaveName:
+        critical: true
+        request:
+          proto: "graphs/person_create/save_name/request.pb"
+          script: "graphs/person_create/save_name/request.lua"
+          timeout: 1000
+        client:
+          discovery: "http://localhost:8080/test/nameservice"
+          timeout: 1000
+        response: "graphs/person_create/save_name/response.pb"
+        dependencies:
+          - HttpRequest
+
+    output:
+      proto: "graphs/person_create/output.pb"
+      script: "graphs/person_create/person_create_output.lua"
+      dependencies:
+        - HttpRequest
+        - SaveName
+        - SaveAge
+        - SavePerson

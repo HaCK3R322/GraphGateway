@@ -39,7 +39,14 @@ object ProtoUtils {
             } else {
                 luaTable.set("get_$fieldName", object : OneArgFunction() {
                     override fun call(self: LuaValue): LuaValue {
-                        return LuaValue.valueOf(builder.getField(field).toString())
+                        val fieldValue = builder.getField(field)
+                        return when (field.type) {
+                            Descriptors.FieldDescriptor.Type.BOOL -> LuaValue.valueOf(fieldValue as Boolean)
+                            Descriptors.FieldDescriptor.Type.STRING -> LuaValue.valueOf(fieldValue as String)
+                            Descriptors.FieldDescriptor.Type.INT32, Descriptors.FieldDescriptor.Type.INT64,
+                            Descriptors.FieldDescriptor.Type.FLOAT, Descriptors.FieldDescriptor.Type.DOUBLE -> LuaValue.valueOf((fieldValue as Number).toDouble())
+                            else -> LuaValue.valueOf(fieldValue.toString())  // Default to string representation
+                        }
                     }
                 })
 
@@ -51,6 +58,32 @@ object ProtoUtils {
                 })
             }
         }
+
+        luaTable.set("discard", object : TwoArgFunction() {
+            override fun call(self: LuaValue, arg: LuaValue): LuaValue {
+                builder.setField(builder.descriptorForType.findFieldByName("discarded"), true)
+
+                var reason = arg.toString()
+                if (reason == "nil") {
+                    reason = "Node discarded in script"
+                }
+
+                builder.setField(builder.descriptorForType.findFieldByName("reason"), reason)
+                return LuaValue.NIL
+            }
+        })
+
+        return luaTable
+    }
+
+    fun createDiscardedLuaTable(): LuaTable {
+        val luaTable = LuaTable()
+
+        luaTable.set("get_discarded", object : OneArgFunction() {
+            override fun call(self: LuaValue): LuaValue {
+                return LuaValue.valueOf(true)
+            }
+        })
 
         return luaTable
     }
@@ -110,10 +143,24 @@ object ProtoUtils {
             .setType(FieldDescriptorProto.Type.TYPE_MESSAGE)
             .setTypeName(nodeName)
 
+        val discardedFieldProto = FieldDescriptorProto.newBuilder()
+            .setName("discarded")
+            .setNumber(4)
+            .setLabel(FieldDescriptorProto.Label.LABEL_OPTIONAL)
+            .setType(FieldDescriptorProto.Type.TYPE_BOOL)
+
+        val reasonFieldProto = FieldDescriptorProto.newBuilder()
+            .setName("reason")
+            .setNumber(5)
+            .setLabel(FieldDescriptorProto.Label.LABEL_OPTIONAL)
+            .setType(FieldDescriptorProto.Type.TYPE_STRING)
+
         wrappedDescriptorProtoBuilder
             .addField(pathFieldProto)
             .addField(methodFieldProto)
             .addField(messageFieldProto)
+            .addField(discardedFieldProto)
+            .addField(reasonFieldProto)
 
 
         val inputFileDescriptor = Descriptors.FileDescriptor.buildFrom(inputDescriptorProto, arrayOf())
