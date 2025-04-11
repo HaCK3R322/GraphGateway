@@ -97,8 +97,6 @@ class Graph(
     }
 
     fun runParallel(request: HttpRequest): HttpResponse {
-        log.info("Running graph $name")
-
         val requestBuilder = DynamicMessage.newBuilder(inputProtoDescriptor)
         JsonFormat.parser()
             .merge(request.body, requestBuilder.getFieldBuilder(inputProtoDescriptor.findFieldByName("message")))

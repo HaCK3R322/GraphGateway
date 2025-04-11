@@ -14,7 +14,6 @@ import java.io.File
 class NodesService(
     private val applicationConfigurationService: ApplicationConfigurationService
 ) {
-
     fun constructNode(nodeConfiguration: NodeConfiguration): Node {
         val root = applicationConfigurationService.getConfiguration().rootPath
 

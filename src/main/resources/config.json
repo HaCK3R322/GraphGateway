@@ -22,7 +22,7 @@
             "HttpRequest"
           ],
           "client": {
-            "discovery": "http://localhost:8080/test/nameservice",
+            "discovery": "http://localhost:9001",
             "timeout": 1000
           }
         },
@@ -39,7 +39,7 @@
             "HttpRequest"
           ],
           "client": {
-            "discovery": "http://localhost:8080/test/ageservice",
+            "discovery": "http://localhost:9002",
             "timeout": 1000
           }
         },
@@ -56,7 +56,7 @@
             "HttpRequest", "SaveName", "SaveAge"
           ],
           "client": {
-            "discovery": "http://localhost:8080/test/personservice",
+            "discovery": "http://localhost:9003",
             "timeout": 1000
           }
         }

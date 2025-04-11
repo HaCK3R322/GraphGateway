@@ -25,7 +25,6 @@ class NodeScript(
 ) {
     private val log = Logger.getLogger(NodeScript::class.java.toString())
     private val clock = Clock.systemDefaultZone()
-    private val globals: Globals = JsePlatform.standardGlobals()
 
     private val nodeDescriptor: Descriptors.Descriptor
 
@@ -49,6 +48,8 @@ class NodeScript(
 
         val nodeMessageBuilder = DynamicMessage.newBuilder(nodeDescriptor)
         val nodeLinkedTable = ProtoUtils.createMessageLinkedLuaTable(nodeMessageBuilder)
+
+        val globals: Globals = JsePlatform.standardGlobals()
 
         globals.set(nodeName, nodeLinkedTable)
 
@@ -106,6 +107,8 @@ class NodeScript(
     ): HttpResponse {
         val nodeMessageBuilder = DynamicMessage.newBuilder(nodeDescriptor)
         val nodeLinkedTable = ProtoUtils.createMessageLinkedLuaTable(nodeMessageBuilder)
+
+        val globals: Globals = JsePlatform.standardGlobals()
 
         globals.set(nodeName, nodeLinkedTable)
 

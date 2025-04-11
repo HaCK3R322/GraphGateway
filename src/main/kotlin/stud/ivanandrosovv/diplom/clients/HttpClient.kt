@@ -6,6 +6,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
@@ -56,6 +57,12 @@ class HttpClient(
                 statusCode = ex.statusCode.value()
                 content = null
                 error = ex.responseBodyAsString
+            }
+        } catch (ex: ResourceAccessException) {
+            HttpResponse().apply {
+                statusCode = 500
+                content = null
+                error = ex.message
             }
         }
 
