@@ -3,11 +3,11 @@ package stud.ivanandrosovv.diplom.services
 import org.springframework.stereotype.Service
 import stud.ivanandrosovv.diplom.clients.Client
 import stud.ivanandrosovv.diplom.clients.HttpClient
-import stud.ivanandrosovv.diplom.model.node.Node
-import stud.ivanandrosovv.diplom.model.scripting.NodeScript
 import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
 import stud.ivanandrosovv.diplom.model.configuration.NodeConfiguration
 import stud.ivanandrosovv.diplom.model.configuration.NodeScriptConfiguration
+import stud.ivanandrosovv.diplom.model.node.Node
+import stud.ivanandrosovv.diplom.model.scripting.NodeScript
 import java.io.File
 
 @Service

@@ -4,7 +4,6 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
 import com.google.protobuf.util.JsonFormat
 import org.jboss.logging.Logger
-import org.jetbrains.kotlin.ir.types.IdSignatureValues.result
 import org.luaj.vm2.LuaTable
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse

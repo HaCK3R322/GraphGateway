@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import stud.ivanandrosovv.diplom.model.ErrorResponse
-import stud.ivanandrosovv.diplom.model.graph.Graph
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.configuration.ApplicationConfiguration
@@ -19,7 +18,6 @@ import stud.ivanandrosovv.diplom.model.toHttpRequest
 import stud.ivanandrosovv.diplom.model.toResponseEntity
 import stud.ivanandrosovv.diplom.services.ApplicationConfigurationService
 import stud.ivanandrosovv.diplom.services.GraphService
-import javax.script.ScriptEngineManager
 
 @RestController
 class ApiController(

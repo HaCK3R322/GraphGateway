@@ -1,6 +1,5 @@
 package stud.ivanandrosovv.diplom.model.node
 
-import com.google.gson.JsonParser
 import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
 import com.google.protobuf.InvalidProtocolBufferException

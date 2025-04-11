@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import stud.ivanandrosovv.diplom.mocks.ageservice.AgeGetResponse
-import stud.ivanandrosovv.diplom.mocks.nameservice.NameGetResponse
 
 @RestController
 class PersonService {

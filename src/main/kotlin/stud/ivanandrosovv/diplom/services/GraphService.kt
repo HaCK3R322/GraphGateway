@@ -8,9 +8,9 @@ import org.graphstream.stream.file.images.Resolutions
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
 import org.springframework.stereotype.Service
-import stud.ivanandrosovv.diplom.model.graph.Graph
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.configuration.GraphConfiguration
+import stud.ivanandrosovv.diplom.model.graph.Graph
 import java.nio.file.Files
 import java.nio.file.Path
 
