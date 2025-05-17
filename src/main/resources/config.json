@@ -304,19 +304,19 @@
       ]
     },
     {
-      "name": "cat_facts",
-      "input": "graphs/cat_facts/input.pb",
+      "name": "dogs",
+      "input": "graphs/dogs/input.pb",
       "output": {
-        "proto": "graphs/cat_facts/output.pb",
-        "script": "graphs/cat_facts/cat_facts_output.lua"
+        "proto": "graphs/dogs/output.pb",
+        "script": "graphs/dogs/output_script.lua"
       },
       "nodes": [
         {
-          "name": "CatFact",
-          "proto": "graphs/cat_facts/cat_fact/response.pb",
+          "name": "GetDescription",
+          "proto": "graphs/dogs/get_description/response.pb",
           "script":  {
-            "path": "graphs/cat_facts/cat_fact/request.lua",
-            "proto": "graphs/cat_facts/cat_fact/request.pb",
+            "path": "graphs/dogs/get_description/request.lua",
+            "proto": "graphs/dogs/get_description/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -324,7 +324,41 @@
             "HttpRequest"
           ],
           "client": {
-            "discovery": "http://localhost:9001",
+            "discovery": "https://dogapi.dog/api/v2",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "GetMaxLife",
+          "proto": "graphs/dogs/get_max_life/response.pb",
+          "script":  {
+            "path": "graphs/dogs/get_max_life/request.lua",
+            "proto": "graphs/dogs/get_max_life/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "https://dogapi.dog/api/v2",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "GetName",
+          "proto": "graphs/dogs/get_name/response.pb",
+          "script":  {
+            "path": "graphs/dogs/get_name/request.lua",
+            "proto": "graphs/dogs/get_name/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "https://dogapi.dog/api/v2",
             "timeout": 1000
           }
         }

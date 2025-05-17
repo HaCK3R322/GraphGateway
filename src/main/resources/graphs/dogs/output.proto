@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message HttpResponse {
+  string name = 1;
+  string description = 2;
+  int64 maxLife = 3;
+}

@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message GetMaxLife {
+  string id = 1;
+}

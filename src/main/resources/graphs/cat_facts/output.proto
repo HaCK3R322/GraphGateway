@@ -1,3 +1,0 @@
-message HttpResponse {
-    string text = 1;
-}

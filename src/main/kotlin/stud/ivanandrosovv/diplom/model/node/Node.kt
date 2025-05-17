@@ -70,7 +70,9 @@ class Node(
         val responseProtoBuilder = DynamicMessage.newBuilder(nodeResponseDescriptor)
 
         try {
-            JsonFormat.parser().merge(contentJson, responseProtoBuilder.getFieldBuilder(nodeResponseDescriptor.findFieldByName("message")))
+            JsonFormat.parser()
+                .ignoringUnknownFields()
+                .merge(contentJson, responseProtoBuilder.getFieldBuilder(nodeResponseDescriptor.findFieldByName("message")));
         } catch (e: InvalidProtocolBufferException) {
             return NodeRunResult(
                 discarded = true,
