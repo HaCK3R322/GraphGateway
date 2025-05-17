@@ -1,0 +1,3 @@
+message HttpRequest {
+    int64 amount = 1;
+}

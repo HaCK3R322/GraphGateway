@@ -1,0 +1,3 @@
+message CatFact {
+    int64 amount = 1;
+}

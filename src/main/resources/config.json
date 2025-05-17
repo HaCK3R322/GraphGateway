@@ -302,6 +302,33 @@
           }
         }
       ]
+    },
+    {
+      "name": "cat_facts",
+      "input": "graphs/cat_facts/input.pb",
+      "output": {
+        "proto": "graphs/cat_facts/output.pb",
+        "script": "graphs/cat_facts/cat_facts_output.lua"
+      },
+      "nodes": [
+        {
+          "name": "CatFact",
+          "proto": "graphs/cat_facts/cat_fact/response.pb",
+          "script":  {
+            "path": "graphs/cat_facts/cat_fact/request.lua",
+            "proto": "graphs/cat_facts/cat_fact/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:9001",
+            "timeout": 1000
+          }
+        }
+      ]
     }
   ]
 }
