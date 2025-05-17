@@ -1,0 +1,5 @@
+syntax = "proto3"
+
+message GetId {
+    int64 id = 1;
+}

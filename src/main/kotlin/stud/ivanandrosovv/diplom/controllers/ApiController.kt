@@ -1,29 +1,54 @@
 package stud.ivanandrosovv.diplom.controllers
 
+import jakarta.annotation.PostConstruct
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletException
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
-import stud.ivanandrosovv.diplom.model.ErrorResponse
-import stud.ivanandrosovv.diplom.model.HttpRequest
-import stud.ivanandrosovv.diplom.model.HttpResponse
+import org.springframework.web.bind.annotation.*
+import stud.ivanandrosovv.diplom.model.*
 import stud.ivanandrosovv.diplom.model.configuration.ApplicationConfiguration
-import stud.ivanandrosovv.diplom.model.toHttpRequest
-import stud.ivanandrosovv.diplom.model.toResponseEntity
 import stud.ivanandrosovv.diplom.services.ApplicationConfigurationService
 import stud.ivanandrosovv.diplom.services.GraphService
+import java.io.IOException
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.logging.Logger
+
 
 @RestController
 class ApiController(
     private val applicationConfigurationService: ApplicationConfigurationService,
     private val graphService: GraphService,
 ) {
+    val counter = AtomicInteger()
+    val rps = AtomicInteger()
+
+    @PostConstruct
+    fun startRpsCalculator() {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(Runnable {
+            rps.set(counter.getAndSet(0))
+            Logger.getLogger(ApiController::class.java.name).info(rps.get().toString())
+        }, 1, 1, TimeUnit.SECONDS)
+    }
+
+    @GetMapping("/rps")
+    fun rps(): String {
+        return rps.get().toString()
+    }
+
+    @PostMapping("/test")
+    fun test(): String {
+        counter.incrementAndGet()
+        Thread.sleep(5)
+        return "Hello World!";
+    }
 
     @PostMapping("/process/{graphName}")
     fun processRequest(@PathVariable graphName: String, servletRequest: HttpServletRequest): Any {
@@ -50,6 +75,8 @@ class ApiController(
         @RequestParam(name = "parallel", required = false, defaultValue = "false") parallel: Boolean,
         servletRequest: HttpServletRequest
     ): Any {
+        counter.incrementAndGet()
+
         val request: HttpRequest = servletRequest.toHttpRequest()
 
         val graph = graphService.graphs[graphName]!!

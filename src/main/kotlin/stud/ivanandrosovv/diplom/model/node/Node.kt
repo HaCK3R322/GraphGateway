@@ -10,6 +10,7 @@ import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.scripting.NodeScript
 import stud.ivanandrosovv.diplom.proto.ProtoUtils
 import stud.ivanandrosovv.diplom.proto.ProtoUtils.createDiscardedLuaTable
+import java.util.logging.Level
 import java.util.logging.Logger
 
 class Node(
@@ -51,11 +52,11 @@ class Node(
             )
         }
 
-        log.info("[$trace][$name] Sending request to ${request.request!!.path}")
+        log.log(Level.FINE, "[$trace][$name] Sending request to ${request.request!!.path}")
 
         val response: HttpResponse = client.send(request.request!!)
 
-        log.info("[$trace][$name] Got response with status code ${response.statusCode}")
+        log.log(Level.FINE, "[$trace][$name] Got response with status code ${response.statusCode}")
 
         if (response.error != null) {
             return NodeRunResult(

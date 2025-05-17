@@ -12,6 +12,7 @@ import stud.ivanandrosovv.diplom.proto.ProtoUtils
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
+import java.util.logging.Level
 import java.util.logging.Logger
 
 class NodeScript(
@@ -29,7 +30,7 @@ class NodeScript(
     private val nodeDescriptor: Descriptors.Descriptor
 
     init {
-        log.info("Instantiating node $nodeName")
+        log.log(Level.FINE, "Instantiating node $nodeName")
 
         val nodeDescriptorProto = ProtoUtils.createDescriptorProtoFromFile(nodeName, requestProtoPath)
 
@@ -92,7 +93,7 @@ class NodeScript(
             this.body = body
         }
 
-        log.info("[$trace][$nodeName] script loaded in ${Duration.between(start, Instant.now()).toMillis()} ms")
+        log.log(Level.FINE, "[$trace][$nodeName] script loaded in ${Duration.between(start, Instant.now()).toMillis()} ms")
 
         return NodeScriptRunResult(
             request = httpRequest,

@@ -6,12 +6,13 @@ import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.DynamicMessage
-import org.jboss.logging.Logger
 import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.OneArgFunction
 import org.luaj.vm2.lib.TwoArgFunction
 import java.io.FileInputStream
+import java.util.logging.Level
+import java.util.logging.Logger
 
 object ProtoUtils {
     fun createMessageLinkedLuaTable(builder: DynamicMessage.Builder): LuaTable {
@@ -234,7 +235,7 @@ object ProtoUtils {
     ): DescriptorProtos.FileDescriptorProto {
         val log = Logger.getLogger("ProtoUtils")
 
-        log.info("Trying to create $nodeDescriptorFilePath")
+        log.log(Level.FINE, "Trying to create $nodeDescriptorFilePath")
 
         val fis = FileInputStream(nodeDescriptorFilePath)
 
