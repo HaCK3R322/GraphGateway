@@ -1,4 +1,4 @@
-syntax = "proto3"
+syntax = "proto3";
 
 message HttpResponse {
     int64 id = 1;

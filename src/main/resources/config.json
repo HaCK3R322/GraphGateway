@@ -1,5 +1,5 @@
 {
-  "rootPath": "C:/Users/ivanandrosovv/IdeaProjects/GraphGateway/src/main/resources/",
+  "rootPath": "/Users/ivanandrosovv/diplom/src/diplom/src/main/resources/",
   "graphs": [
     {
       "name": "person_create",
@@ -359,6 +359,33 @@
           ],
           "client": {
             "discovery": "https://dogapi.dog/api/v2",
+            "timeout": 1000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rps_test",
+      "input": "graphs/rps_test/input.pb",
+      "output": {
+        "proto": "graphs/rps_test/output.pb",
+        "script": "graphs/rps_test/output_script.lua"
+      },
+      "nodes": [
+        {
+          "name": "GetId",
+          "proto": "graphs/rps_test/get_id/response.pb",
+          "script":  {
+            "path": "graphs/rps_test/get_id/request.lua",
+            "proto": "graphs/rps_test/get_id/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:9000",
             "timeout": 1000
           }
         }
