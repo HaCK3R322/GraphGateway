@@ -18,8 +18,7 @@ import java.nio.file.Path
 @Service
 class GraphService(
     private val configurationService: ApplicationConfigurationService,
-    private val nodesService: NodesService,
-    private val restTemplate: RestTemplate
+    private val nodesService: NodesService
 ) {
     var graphs: Map<String, Graph> = mutableMapOf()
 
@@ -60,8 +59,7 @@ class GraphService(
             nodes = graphNodes.associateBy { it.name },
             inputProtoFilePath = root + graphConfiguration.inputProtoPath,
             outputProtoFilePath = root + graphConfiguration.output.protoFilePath,
-            outputScriptFilePath = root + graphConfiguration.output.scriptFilePath,
-            restTemplate = restTemplate
+            outputScriptFilePath = root + graphConfiguration.output.scriptFilePath
         )
     }
 

@@ -6,5 +6,4 @@ import stud.ivanandrosovv.diplom.model.HttpResponse
 
 interface Client {
     fun send(request: HttpRequest): HttpResponse
-    fun setRestTemplate(restTemplate: RestTemplate)
 }

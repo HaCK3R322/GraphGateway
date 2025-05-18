@@ -14,23 +14,22 @@ import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
 import java.net.URI
 
 class HttpClient(
+    private val restTemplate: RestTemplate,
     private val discovery: String,
     private val timeout: Long? = null,
     private val softTimeout: Long? = null,
     private val retires: Long? = null
 ) : Client {
-    constructor(configuration: ClientConfiguration) : this(
+    constructor(
+        configuration: ClientConfiguration,
+        restTemplate: RestTemplate
+    ) : this(
+        restTemplate,
         configuration.discovery,
         configuration.timeout,
         configuration.softTimeout,
         configuration.retires
     )
-
-    private var restTemplate = RestTemplate();
-
-    override fun setRestTemplate(restTemplate: RestTemplate) {
-        this.restTemplate = restTemplate
-    }
 
     override fun send(request: HttpRequest): HttpResponse {
         val headers = LinkedMultiValueMap<String, String>()
@@ -71,9 +70,5 @@ class HttpClient(
         }
 
         return response
-    }
-
-    fun sendAsync(request: HttpRequest) {
-
     }
 }
