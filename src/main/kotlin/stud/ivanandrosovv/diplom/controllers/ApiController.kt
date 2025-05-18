@@ -42,9 +42,7 @@ class ApiController(
 
         val request: HttpRequest = servletRequest.toHttpRequest()
 
-        val graph = graphService.graphs[graphName]!!
-
-        val result = graph.run(request)
+        val result = graphService.runGraph(graphName, request)
 
         if (HttpStatusCode.valueOf(result.statusCode!!).isError) {
             return ResponseEntity.status(result.statusCode!!).body(ErrorResponse(

@@ -1,5 +1,7 @@
 package stud.ivanandrosovv.diplom.services
 
+import com.google.protobuf.DynamicMessage
+import com.google.protobuf.util.JsonFormat
 import jakarta.annotation.PostConstruct
 import org.graphstream.graph.implementations.SingleGraph
 import org.graphstream.stream.file.FileSinkImages
@@ -7,19 +9,33 @@ import org.graphstream.stream.file.FileSinkImages.OutputType
 import org.graphstream.stream.file.images.Resolutions
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
+import org.luaj.vm2.LuaTable
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
 import stud.ivanandrosovv.diplom.model.HttpRequest
+import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.configuration.GraphConfiguration
 import stud.ivanandrosovv.diplom.model.graph.Graph
+import stud.ivanandrosovv.diplom.model.node.NodeRunResult
+import stud.ivanandrosovv.diplom.proto.ProtoUtils
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
+import java.util.logging.Level
+import java.util.logging.Logger
+import kotlin.collections.set
 
 @Service
 class GraphService(
     private val configurationService: ApplicationConfigurationService,
-    private val nodesService: NodesService
+    private val nodeService: NodeService
 ) {
+    private val log: Logger = Logger.getLogger(GraphService::class.java.name)
+
     var graphs: Map<String, Graph> = mutableMapOf()
 
     @PostConstruct
@@ -27,6 +43,97 @@ class GraphService(
         val graphConfigurations = configurationService.getConfiguration().graphs
         graphs = graphConfigurations.associate { it.name to buildGraphByConfiguration(it) }
         validateGraphs(graphs)
+    }
+
+    fun runGraph(graphName: String, request: HttpRequest): HttpResponse {
+        val graph = graphs[graphName]!!
+
+        val trace = UUID.randomUUID().toString()
+
+        val requestBuilder = DynamicMessage.newBuilder(graph.inputProtoDescriptor)
+        JsonFormat.parser()
+            .merge(request.body, requestBuilder.getFieldBuilder(graph.inputProtoDescriptor.findFieldByName("message")))
+        val requestLinkedTable = ProtoUtils.createMessageLinkedLuaTable(requestBuilder)
+
+        val nodeRunResults: ConcurrentHashMap<String, NodeRunResult> = ConcurrentHashMap()
+        val nodeRunResultsTables: ConcurrentHashMap<String, LuaTable?> = ConcurrentHashMap()
+        nodeRunResultsTables["HttpRequest"] = requestLinkedTable
+
+        val nodes = graph.nodes
+
+        // Creating a fixed thread pool for parallel execution
+        val executor = Executors.newFixedThreadPool(nodes.size)
+
+        // Tracking nodes that are ready to run using CountDownLatch
+        val latchMap: ConcurrentHashMap<String, CountDownLatch> = ConcurrentHashMap()
+
+        nodes.values.forEach { node ->
+            latchMap[node.name] = CountDownLatch(node.dependenciesNames.size)
+
+            if (node.dependenciesNames.contains("HttpRequest")) {
+                latchMap[node.name]?.countDown()
+            }
+        }
+
+        val isCriticalNodeFail = AtomicBoolean(false)
+        val criticalFailReason = AtomicReference("unknown")
+
+        nodes.values.forEach { node ->
+            latchMap[node.name]?.let { latch ->
+                executor.submit {
+                    try {
+                        latch.await() // Wait for all dependencies to complete
+
+                        if (isCriticalNodeFail.get()) {
+                            return@submit
+                        }
+
+                        val nodeDependencies = nodeRunResultsTables.filter { node.dependenciesNames.contains(it.key) }
+
+                        val result = nodeService.runNode(
+                            node,
+                            nodeDependencies,
+                            trace
+                        )
+
+                        nodeRunResults[node.name] = result
+
+                        if (node.critical && result.discarded) {
+                            log.log(Level.WARNING, "[$trace] Critical node ${node.name} failed. Graph stopping.")
+                            isCriticalNodeFail.set(true)
+                            criticalFailReason.set(result.reason)
+                            executor.shutdownNow()
+                            return@submit
+                        }
+
+                        nodeRunResultsTables[node.name] = result.responseLinkedTable
+
+                        // Notify all dependent nodes by decrementing their latch
+                        nodes.values.filter { it.dependenciesNames.contains(node.name) }.forEach {
+                            latchMap[it.name]?.countDown()
+                        }
+                    } catch (e: InterruptedException) {
+                        log.log(Level.WARNING, "[$trace][${node.name}] Was interrupted.")
+                    } catch (e: Exception) {
+                        log.log(Level.WARNING, "Error running node ${node.name}", e)
+                    }
+                }
+            }
+        }
+
+        executor.shutdown()
+        executor.awaitTermination(Long.MAX_VALUE, java.util.concurrent.TimeUnit.NANOSECONDS)
+
+        if (isCriticalNodeFail.get()) {
+            return HttpResponse().apply {
+                statusCode = 400
+                error = criticalFailReason.get()
+            }
+        }
+
+        val response = graph.script.runAsResponse(nodeRunResultsTables, trace)
+
+        return response
     }
 
     /**
@@ -52,7 +159,7 @@ class GraphService(
     private fun buildGraphByConfiguration(graphConfiguration: GraphConfiguration): Graph {
         val root = configurationService.getConfiguration().rootPath
 
-        val graphNodes = graphConfiguration.nodesConfigurations.map { nodesService.constructNode(it) }
+        val graphNodes = graphConfiguration.nodesConfigurations.map { nodeService.constructNode(it) }
 
         return Graph(
             name = graphConfiguration.name,

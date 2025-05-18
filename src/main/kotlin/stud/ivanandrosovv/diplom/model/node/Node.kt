@@ -21,72 +21,11 @@ class Node(
     val client: Client,
     responseProtoPath: String
 ) {
-    private val log: Logger = Logger.getLogger(this::class.java.name)
-
-    private val nodeResponseDescriptor: Descriptors.Descriptor
+    val nodeResponseDescriptor: Descriptors.Descriptor
 
     init {
         val nodeDescriptorProto = ProtoUtils.createDescriptorProtoFromFile(name, responseProtoPath)
-
         nodeResponseDescriptor = ProtoUtils.createNodeResultDescriptor(name, nodeDescriptorProto)
-    }
-
-    fun run(
-        dependencies: Map<String, LuaTable?>,
-        trace: String
-    ): NodeRunResult {
-        if (!dependencies.keys.containsAll(dependenciesNames)) {
-            val missingDependencies = dependenciesNames
-                .filter { !dependencies.containsKey(it) }
-
-            throw IllegalArgumentException("Node $name missing dependencies: $missingDependencies")
-        }
-
-        val request = script.run(dependencies, trace)
-
-        if (request.discarded) {
-            return NodeRunResult(
-                discarded = true,
-                reason = request.reason ?: "Discarded in request script",
-                responseLinkedTable = createDiscardedLuaTable()
-            )
-        }
-
-        log.log(Level.FINE, "[$trace][$name] Sending request to ${request.request!!.path}")
-
-        val response: HttpResponse = client.send(request.request!!)
-
-        log.log(Level.FINE, "[$trace][$name] Got response with status code ${response.statusCode}")
-
-        if (response.error != null) {
-            return NodeRunResult(
-                discarded = true,
-                reason = response.error,
-                responseLinkedTable = createDiscardedLuaTable()
-            )
-        }
-
-        val contentJson = response.content
-
-        val responseProtoBuilder = DynamicMessage.newBuilder(nodeResponseDescriptor)
-
-        try {
-            JsonFormat.parser()
-                .ignoringUnknownFields()
-                .merge(contentJson, responseProtoBuilder.getFieldBuilder(nodeResponseDescriptor.findFieldByName("message")));
-        } catch (e: InvalidProtocolBufferException) {
-            return NodeRunResult(
-                discarded = true,
-                reason = "Mapping response on its proto failed: ${e.message}",
-                responseLinkedTable = createDiscardedLuaTable()
-            )
-        }
-
-        val responseTable = ProtoUtils.createMessageLinkedLuaTable(responseProtoBuilder)
-
-        return NodeRunResult(
-            responseLinkedTable = responseTable
-        )
     }
 
     companion object {
