@@ -9,9 +9,14 @@ class ClientConfiguration(
     val discovery: String,
     val timeout: Long? = null,
     val softTimeout: Long? = null,
-    val retires: Long? = null
+    val retires: Long? = null,
+    val name: String = "http"
 ) {
     companion object {
+        enum class Names(val value: String) {
+            HTTP("http"),
+        }
+
         fun builder(): Builder {
             return Builder()
         }
@@ -22,6 +27,7 @@ class ClientConfiguration(
             private var timeout: Long? = null
             private var softTimeout: Long? = null
             private var retires: Long? = null
+            private var name: String = "http"
 
             @JsonProperty("discovery")
             fun withDiscovery(discovery: String) = apply { this.discovery = discovery }
@@ -35,11 +41,15 @@ class ClientConfiguration(
             @JsonProperty("retries")
             fun withRetires(retires: Long) = apply { this.retires = retires }
 
+            @JsonProperty("name")
+            fun withName(name: String) = apply { this.name = name }
+
             fun build() = ClientConfiguration(
                 discovery!!,
                 timeout,
                 softTimeout,
-                retires
+                retires,
+                name
             )
         }
     }

@@ -1,6 +1,7 @@
 package stud.ivanandrosovv.diplom.services
 
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestTemplate
 import stud.ivanandrosovv.diplom.clients.Client
 import stud.ivanandrosovv.diplom.clients.HttpClient
 import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
@@ -12,7 +13,8 @@ import java.io.File
 
 @Service
 class NodesService(
-    private val applicationConfigurationService: ApplicationConfigurationService
+    private val applicationConfigurationService: ApplicationConfigurationService,
+    private val restTemplate: RestTemplate
 ) {
     fun constructNode(nodeConfiguration: NodeConfiguration): Node {
         val root = applicationConfigurationService.getConfiguration().rootPath
@@ -35,9 +37,10 @@ class NodesService(
     }
 
     private fun createClient(clientConfiguration: ClientConfiguration): Client {
-        val client = HttpClient(clientConfiguration)
-
-        return client
+        return when (clientConfiguration.name) {
+            ClientConfiguration.Companion.Names.HTTP.value -> HttpClient(clientConfiguration, restTemplate)
+            else -> throw IllegalArgumentException("No such client ${clientConfiguration.name}")
+        }
     }
 
     private fun createScript(nodeName: String, script: NodeScriptConfiguration): NodeScript {
@@ -46,8 +49,6 @@ class NodesService(
         val timeout = script.timeout
 
         val nodeSourceCode = File(absoluteScriptPath).readText()
-
-        // val sourceCode = NodeScript.combineScript(nodeSourceCode, nodeName)
 
         return NodeScript(
             nodeName = nodeName,
