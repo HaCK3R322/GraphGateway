@@ -8,6 +8,7 @@ import org.graphstream.stream.file.images.Resolutions
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestTemplate
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.configuration.GraphConfiguration
 import stud.ivanandrosovv.diplom.model.graph.Graph
@@ -18,6 +19,7 @@ import java.nio.file.Path
 class GraphService(
     private val configurationService: ApplicationConfigurationService,
     private val nodesService: NodesService,
+    private val restTemplate: RestTemplate
 ) {
     var graphs: Map<String, Graph> = mutableMapOf()
 
@@ -58,7 +60,8 @@ class GraphService(
             nodes = graphNodes.associateBy { it.name },
             inputProtoFilePath = root + graphConfiguration.inputProtoPath,
             outputProtoFilePath = root + graphConfiguration.output.protoFilePath,
-            outputScriptFilePath = root + graphConfiguration.output.scriptFilePath
+            outputScriptFilePath = root + graphConfiguration.output.scriptFilePath,
+            restTemplate = restTemplate
         )
     }
 

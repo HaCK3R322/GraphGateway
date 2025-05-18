@@ -19,14 +19,18 @@ class HttpClient(
     private val softTimeout: Long? = null,
     private val retires: Long? = null
 ) : Client {
-    private val restTemplate = RestTemplate()
-
     constructor(configuration: ClientConfiguration) : this(
         configuration.discovery,
         configuration.timeout,
         configuration.softTimeout,
         configuration.retires
     )
+
+    private var restTemplate = RestTemplate();
+
+    override fun setRestTemplate(restTemplate: RestTemplate) {
+        this.restTemplate = restTemplate
+    }
 
     override fun send(request: HttpRequest): HttpResponse {
         val headers = LinkedMultiValueMap<String, String>()
@@ -67,5 +71,9 @@ class HttpClient(
         }
 
         return response
+    }
+
+    fun sendAsync(request: HttpRequest) {
+
     }
 }

@@ -4,6 +4,7 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
 import com.google.protobuf.util.JsonFormat
 import org.luaj.vm2.LuaTable
+import org.springframework.web.client.RestTemplate
 import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.node.Node
@@ -33,8 +34,11 @@ class Graph(
 
     inputProtoFilePath: String,
     outputProtoFilePath: String,
-    outputScriptFilePath: String
+    outputScriptFilePath: String,
+
+    val restTemplate: RestTemplate
 ) {
+
     private val log = Logger.getLogger(Graph::class.java.name)
 
     private val inputProtoDescriptor: Descriptors.Descriptor
@@ -103,176 +107,178 @@ class Graph(
         return response
     }
 
-//    fun runParallel(request: HttpRequest): HttpResponse {
-//        val requestBuilder = DynamicMessage.newBuilder(inputProtoDescriptor)
-//        JsonFormat.parser()
-//            .merge(request.body, requestBuilder.getFieldBuilder(inputProtoDescriptor.findFieldByName("message")))
-//        val requestLinkedTable = ProtoUtils.createMessageLinkedLuaTable(requestBuilder)
-//
-//        val nodeRunResults: ConcurrentHashMap<String, NodeRunResult> = ConcurrentHashMap()
-//        val nodeRunResultsTables: ConcurrentHashMap<String, LuaTable?> = ConcurrentHashMap()
-//        nodeRunResultsTables["HttpRequest"] = requestLinkedTable
-//
-//        // Creating a fixed thread pool for parallel execution
-//        val executor = Executors.newFixedThreadPool(nodes.size)
-//
-//        // Tracking nodes that are ready to run using CountDownLatch
-//        val latchMap: ConcurrentHashMap<String, CountDownLatch> = ConcurrentHashMap()
-//
-//        nodes.values.forEach { node ->
-//            latchMap[node.name] = CountDownLatch(node.dependenciesNames.size)
-//
-//            if (node.dependenciesNames.contains("HttpRequest")) {
-//                latchMap[node.name]?.countDown()
-//            }
-//        }
-//
-//        val isCriticalNodeFail = AtomicBoolean(false)
-//        val criticalFailReason = AtomicReference("unknown")
-//
-//        nodes.values.forEach { node ->
-//            latchMap[node.name]?.let { latch ->
-//                executor.submit {
-//                    try {
-//                        latch.await() // Wait for all dependencies to complete
-//
-//                        if (isCriticalNodeFail.get()) {
-//                            return@submit
-//                        }
-//
-//                        val nodeDependencies = nodeRunResultsTables.filter { node.dependenciesNames.contains(it.key) }
-//
-//                        val result = node.run(nodeDependencies, name)
-//
-//                        nodeRunResults[node.name] = result
-//
-//                        if (node.critical && result.discarded) {
-//                            log.log(Level.WARNING, "[$name] Critical node ${node.name} failed. Graph stopping.")
-//                            isCriticalNodeFail.set(true)
-//                            criticalFailReason.set(result.reason)
-//                            executor.shutdownNow()
-//                            return@submit
-//                        }
-//
-//                        nodeRunResultsTables[node.name] = result.responseLinkedTable
-//
-//                        // Notify all dependent nodes by decrementing their latch
-//                        nodes.values.filter { it.dependenciesNames.contains(node.name) }.forEach {
-//                            latchMap[it.name]?.countDown()
-//                        }
-//                    } catch (e: InterruptedException) {
-//                        log.log(Level.WARNING, "[$name][${node.name}] Was interrupted.")
-//                    } catch (e: Exception) {
-//                        log.log(Level.WARNING, "Error running node ${node.name}", e)
-//                    }
-//                }
-//            }
-//        }
-//
-//        executor.shutdown()
-//        executor.awaitTermination(Long.MAX_VALUE, java.util.concurrent.TimeUnit.NANOSECONDS)
-//
-//        if (isCriticalNodeFail.get()) {
-//            return HttpResponse().apply {
-//                statusCode = 400
-//                error = criticalFailReason.get()
-//            }
-//        }
-//
-//        val response = script.runAsResponse(nodeRunResultsTables, name)
-//
-//        return response
-//    }
-
     fun runParallel(request: HttpRequest): HttpResponse {
         val requestBuilder = DynamicMessage.newBuilder(inputProtoDescriptor)
         JsonFormat.parser()
             .merge(request.body, requestBuilder.getFieldBuilder(inputProtoDescriptor.findFieldByName("message")))
         val requestLinkedTable = ProtoUtils.createMessageLinkedLuaTable(requestBuilder)
 
-        val nodeRunResultsTables = ConcurrentHashMap<String, LuaTable?>().apply {
-            put("HttpRequest", requestLinkedTable)
+        val nodeRunResults: ConcurrentHashMap<String, NodeRunResult> = ConcurrentHashMap()
+        val nodeRunResultsTables: ConcurrentHashMap<String, LuaTable?> = ConcurrentHashMap()
+        nodeRunResultsTables["HttpRequest"] = requestLinkedTable
+
+        // Creating a fixed thread pool for parallel execution
+        val executor = Executors.newFixedThreadPool(nodes.size)
+
+        // Tracking nodes that are ready to run using CountDownLatch
+        val latchMap: ConcurrentHashMap<String, CountDownLatch> = ConcurrentHashMap()
+
+        nodes.values.forEach { node ->
+            latchMap[node.name] = CountDownLatch(node.dependenciesNames.size)
+
+            if (node.dependenciesNames.contains("HttpRequest")) {
+                latchMap[node.name]?.countDown()
+            }
         }
 
-        val latchMap = nodes.values.associate { node ->
-            node.name to CountDownLatch(node.dependenciesNames.size)
-        }.toMutableMap()
+        val isCriticalNodeFail = AtomicBoolean(false)
+        val criticalFailReason = AtomicReference("unknown")
 
-        // Инициализация зависимостей для HttpRequest
-        nodes.values.filter { it.dependenciesNames.contains("HttpRequest") }.forEach { node ->
-            latchMap[node.name]?.countDown()
-        }
+        nodes.values.forEach { node ->
+            latchMap[node.name]?.let { latch ->
+                node.client.setRestTemplate(this.restTemplate)
 
-        val isCriticalFail = AtomicBoolean(false)
-        val failReason = AtomicReference<String>()
-        val executor = Executors.newCachedThreadPool()
-        val semaphore = Semaphore(nodes.size * 2) // Защита от перегрузки
-
-        try {
-            nodes.values.map { node ->
                 executor.submit {
                     try {
-                        semaphore.acquire()
-                        if (isCriticalFail.get()) return@submit
+                        latch.await() // Wait for all dependencies to complete
 
-                        // Ожидаем зависимости
-                        latchMap[node.name]?.await()
-
-                        // Проверяем статус после ожидания
-                        if (isCriticalFail.get()) return@submit
-
-                        // Выполняем ноду
-                        val dependencies = node.dependenciesNames.associateWith { nodeRunResultsTables[it] }
-                        val result = node.run(dependencies, name)
-
-                        // Обрабатываем критические ошибки
-                        if (node.critical && result.discarded) {
-                            isCriticalFail.set(true)
-                            failReason.set("Critical node ${node.name} failed: ${result.reason}")
-                            throw CancellationException("Critical node failed")
+                        if (isCriticalNodeFail.get()) {
+                            return@submit
                         }
 
-                        // Сохраняем результат
+                        val nodeDependencies = nodeRunResultsTables.filter { node.dependenciesNames.contains(it.key) }
+
+                        val result = node.run(nodeDependencies, name)
+
+                        nodeRunResults[node.name] = result
+
+                        if (node.critical && result.discarded) {
+                            log.log(Level.WARNING, "[$name] Critical node ${node.name} failed. Graph stopping.")
+                            isCriticalNodeFail.set(true)
+                            criticalFailReason.set(result.reason)
+                            executor.shutdownNow()
+                            return@submit
+                        }
+
                         nodeRunResultsTables[node.name] = result.responseLinkedTable
 
-                        // Уведомляем зависимые ноды
-                        nodes.values
-                            .filter { it.dependenciesNames.contains(node.name) }
-                            .forEach { latchMap[it.name]?.countDown() }
-
-                    } catch (e: InterruptedException) {
-                        Thread.currentThread().interrupt()
-                    } catch (e: CancellationException) {
-                        // Игнорируем отмену
-                    } catch (e: Exception) {
-                        log.log(Level.SEVERE, "Node ${node.name} failed", e)
-                        if (node.critical) {
-                            isCriticalFail.set(true)
-                            failReason.set("Node ${node.name} failed: ${e.message}")
+                        // Notify all dependent nodes by decrementing their latch
+                        nodes.values.filter { it.dependenciesNames.contains(node.name) }.forEach {
+                            latchMap[it.name]?.countDown()
                         }
-                    } finally {
-                        semaphore.release()
+                    } catch (e: InterruptedException) {
+                        log.log(Level.WARNING, "[$name][${node.name}] Was interrupted.")
+                    } catch (e: Exception) {
+                        log.log(Level.WARNING, "Error running node ${node.name}", e)
                     }
                 }
-            }.forEach { it.get(500, TimeUnit.MILLISECONDS) } // Таймаут на выполнение ноды
+            }
+        }
 
-        } catch (e: TimeoutException) {
-            log.severe("Graph execution timeout")
+        executor.shutdown()
+        executor.awaitTermination(Long.MAX_VALUE, java.util.concurrent.TimeUnit.NANOSECONDS)
+
+        if (isCriticalNodeFail.get()) {
             return HttpResponse().apply {
-                statusCode = 503
-                error = "Service Unavailable"
+                statusCode = 400
+                error = criticalFailReason.get()
             }
-        } finally {
-            executor.shutdownNow()
         }
 
-        return if (isCriticalFail.get()) {
-            HttpResponse().apply {
-                statusCode = 400
-                error = failReason.get()
-            }
-        } else {
-            script.runAsResponse(nodeRunResultsTables, name)
-        }
+        val response = script.runAsResponse(nodeRunResultsTables, name)
+
+        return response
     }
+
+//    fun runParallel(request: HttpRequest): HttpResponse {
+//        val requestBuilder = DynamicMessage.newBuilder(inputProtoDescriptor)
+//        JsonFormat.parser()
+//            .merge(request.body, requestBuilder.getFieldBuilder(inputProtoDescriptor.findFieldByName("message")))
+//        val requestLinkedTable = ProtoUtils.createMessageLinkedLuaTable(requestBuilder)
+//
+//        val nodeRunResultsTables = ConcurrentHashMap<String, LuaTable?>().apply {
+//            put("HttpRequest", requestLinkedTable)
+//        }
+//
+//        val latchMap = nodes.values.associate { node ->
+//            node.name to CountDownLatch(node.dependenciesNames.size)
+//        }.toMutableMap()
+//
+//        // Инициализация зависимостей для HttpRequest
+//        nodes.values.filter { it.dependenciesNames.contains("HttpRequest") }.forEach { node ->
+//            latchMap[node.name]?.countDown()
+//        }
+//
+//        val isCriticalFail = AtomicBoolean(false)
+//        val failReason = AtomicReference<String>()
+//        val executor = Executors.newCachedThreadPool()
+//        val semaphore = Semaphore(nodes.size * 2) // Защита от перегрузки
+//
+//        try {
+//            nodes.values.map { node ->
+//                executor.submit {
+//                    try {
+//                        semaphore.acquire()
+//                        if (isCriticalFail.get()) return@submit
+//
+//                        // Ожидаем зависимости
+//                        latchMap[node.name]?.await()
+//
+//                        // Проверяем статус после ожидания
+//                        if (isCriticalFail.get()) return@submit
+//
+//                        // Выполняем ноду
+//                        val dependencies = node.dependenciesNames.associateWith { nodeRunResultsTables[it] }
+//                        val result = node.run(dependencies, name)
+//
+//                        // Обрабатываем критические ошибки
+//                        if (node.critical && result.discarded) {
+//                            isCriticalFail.set(true)
+//                            failReason.set("Critical node ${node.name} failed: ${result.reason}")
+//                            throw CancellationException("Critical node failed")
+//                        }
+//
+//                        // Сохраняем результат
+//                        nodeRunResultsTables[node.name] = result.responseLinkedTable
+//
+//                        // Уведомляем зависимые ноды
+//                        nodes.values
+//                            .filter { it.dependenciesNames.contains(node.name) }
+//                            .forEach { latchMap[it.name]?.countDown() }
+//
+//                    } catch (e: InterruptedException) {
+//                        Thread.currentThread().interrupt()
+//                    } catch (e: CancellationException) {
+//                        // Игнорируем отмену
+//                    } catch (e: Exception) {
+//                        log.log(Level.SEVERE, "Node ${node.name} failed", e)
+//                        if (node.critical) {
+//                            isCriticalFail.set(true)
+//                            failReason.set("Node ${node.name} failed: ${e.message}")
+//                        }
+//                    } finally {
+//                        semaphore.release()
+//                    }
+//                }
+//            }.forEach { it.get(500, TimeUnit.MILLISECONDS) } // Таймаут на выполнение ноды
+//
+//        } catch (e: TimeoutException) {
+//            log.severe("Graph execution timeout")
+//            return HttpResponse().apply {
+//                statusCode = 503
+//                error = "Service Unavailable"
+//            }
+//        } finally {
+//            executor.shutdownNow()
+//        }
+//
+//        return if (isCriticalFail.get()) {
+//            HttpResponse().apply {
+//                statusCode = 400
+//                error = failReason.get()
+//            }
+//        } else {
+//            script.runAsResponse(nodeRunResultsTables, name)
+//        }
+//    }
 }
