@@ -390,6 +390,84 @@
           }
         }
       ]
+    },
+    {
+      "name": "get_order",
+      "input": "get_order/input.pb",
+      "output": {
+        "proto": "get_order/output.pb",
+        "script": "get_order/get_order_output.lua"
+      },
+      "nodes": [
+        {
+          "name": "GetDelivery",
+          "proto": "get_order/get_delivery/response.pb",
+          "script":  {
+            "path": "get_order/get_delivery/request.lua",
+            "proto": "get_order/get_delivery/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest"
+          ],
+          "client": {
+            "discovery": "http://localhost:9002",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "GetCourier",
+          "proto": "get_order/get_courier/response.pb",
+          "script":  {
+            "path": "get_order/get_courier/request.lua",
+            "proto": "get_order/get_courier/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "GetDelivery"
+          ],
+          "client": {
+            "discovery": "http://localhost:9003",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "GetUserView",
+          "proto": "get_order/get_user_view/response.pb",
+          "script":  {
+            "path": "get_order/get_user_view/request.lua",
+            "proto": "get_order/get_user_view/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "GetCourier"
+          ],
+          "client": {
+            "discovery": "http://localhost:9004",
+            "timeout": 1000
+          }
+        },
+        {
+          "name": "FinalizeOrder",
+          "proto": "get_order/finalize_order/response.pb",
+          "script":  {
+            "path": "get_order/finalize_order/request.lua",
+            "proto": "get_order/finalize_order/request.pb",
+            "timeout": 1000
+          },
+          "critical": true,
+          "dependencies": [
+            "HttpRequest", "GetUserView","GetDelivery", "GetCourier"
+          ],
+          "client": {
+            "discovery": "http://localhost:9001",
+            "timeout": 1000
+          }
+        }
+      ]
     }
   ]
 }

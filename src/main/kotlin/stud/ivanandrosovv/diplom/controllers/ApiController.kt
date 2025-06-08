@@ -31,13 +31,13 @@ class ApiController(
     val counter = AtomicInteger()
     val rps = AtomicInteger()
 
-    @PostConstruct
-    fun startRpsCalculator() {
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(Runnable {
-            rps.set(counter.getAndSet(0) / 5)
-            Logger.getLogger(ApiController::class.java.name).info(rps.get().toString())
-        }, 1, 5, TimeUnit.SECONDS)
-    }
+//    @PostConstruct
+//    fun startRpsCalculator() {
+//        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(Runnable {
+//            rps.set(counter.getAndSet(0) / 5)
+//            Logger.getLogger(ApiController::class.java.name).info(rps.get().toString())
+//        }, 1, 5, TimeUnit.SECONDS)
+//    }
 
     @GetMapping("/id")
     fun getId(): ResponseEntity<String> {

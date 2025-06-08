@@ -69,6 +69,12 @@ class HttpClient(
                 content = null
                 error = ex.message
             }
+        } catch (ex: Exception) {
+            HttpResponse().apply {
+                statusCode = 500
+                content = null
+                error = ex.message
+            }
         }
 
         return response
