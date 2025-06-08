@@ -26,5 +26,5 @@ message OrderView {
 }
 
 message HttpResponse {
-    OrderView orderView = 1
+    OrderView orderView = 1;
 }
