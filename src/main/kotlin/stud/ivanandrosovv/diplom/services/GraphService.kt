@@ -52,6 +52,7 @@ class GraphService(
 
         val requestBuilder = DynamicMessage.newBuilder(graph.inputProtoDescriptor)
         JsonFormat.parser()
+            .ignoringUnknownFields()
             .merge(request.body, requestBuilder.getFieldBuilder(graph.inputProtoDescriptor.findFieldByName("message")))
         val requestLinkedTable = ProtoUtils.createMessageLinkedLuaTable(requestBuilder)
 
@@ -88,7 +89,8 @@ class GraphService(
                             return@submit
                         }
 
-                        val nodeDependencies = nodeRunResultsTables.filter { node.dependenciesNames.contains(it.key) }
+                        val nodeDependencies = nodeRunResultsTables
+                            .filter { node.dependenciesNames.contains(it.key) }
 
                         val result = nodeService.runNode(
                             node,
@@ -135,6 +137,7 @@ class GraphService(
 
         return response
     }
+
 
     /**
      * by now just nodes dependencies validation

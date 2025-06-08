@@ -22,7 +22,7 @@ object ProtoUtils {
         for (field in descriptor.fields) {
             val fieldName = field.name.split('_').joinToString("") { it.capitalize() }.decapitalize()
 
-            if (field.type == Descriptors.FieldDescriptor.Type.MESSAGE) {
+            if (field.type == FieldDescriptor.Type.MESSAGE) {
                 luaTable.set("get_$fieldName", object : OneArgFunction() {
                     override fun call(self: LuaValue): LuaValue {
                         val nestedBuilder = builder.getFieldBuilder(field) as DynamicMessage.Builder
@@ -34,7 +34,7 @@ object ProtoUtils {
                     override fun call(self: LuaValue, arg: LuaValue): LuaValue {
                         val nestedBuilder = builder.getFieldBuilder(field) as DynamicMessage.Builder
                         copyLuaTableToBuilder(nestedBuilder, arg.checktable())
-                        return LuaValue.NIL
+                        return NIL
                     }
                 })
             } else {
@@ -42,11 +42,11 @@ object ProtoUtils {
                     override fun call(self: LuaValue): LuaValue {
                         val fieldValue = builder.getField(field)
                         return when (field.type) {
-                            Descriptors.FieldDescriptor.Type.BOOL -> LuaValue.valueOf(fieldValue as Boolean)
-                            Descriptors.FieldDescriptor.Type.STRING -> LuaValue.valueOf(fieldValue as String)
-                            Descriptors.FieldDescriptor.Type.INT32, Descriptors.FieldDescriptor.Type.INT64,
-                            Descriptors.FieldDescriptor.Type.FLOAT, Descriptors.FieldDescriptor.Type.DOUBLE -> LuaValue.valueOf((fieldValue as Number).toDouble())
-                            else -> LuaValue.valueOf(fieldValue.toString())  // Default to string representation
+                            FieldDescriptor.Type.BOOL -> valueOf(fieldValue as Boolean)
+                            FieldDescriptor.Type.STRING -> valueOf(fieldValue as String)
+                            FieldDescriptor.Type.INT32, FieldDescriptor.Type.INT64,
+                            FieldDescriptor.Type.FLOAT, FieldDescriptor.Type.DOUBLE -> valueOf((fieldValue as Number).toDouble())
+                            else -> valueOf(fieldValue.toString())  // Default to string representation
                         }
                     }
                 })
@@ -54,7 +54,7 @@ object ProtoUtils {
                 luaTable.set("set_$fieldName", object : TwoArgFunction() {
                     override fun call(self: LuaValue, arg: LuaValue): LuaValue {
                         builder.setField(field, convertLuaValueToProtoValue(field, arg))
-                        return LuaValue.NIL
+                        return NIL
                     }
                 })
             }
@@ -70,7 +70,7 @@ object ProtoUtils {
                 }
 
                 builder.setField(builder.descriptorForType.findFieldByName("reason"), reason)
-                return LuaValue.NIL
+                return NIL
             }
         })
 
@@ -82,7 +82,7 @@ object ProtoUtils {
 
         luaTable.set("get_discarded", object : OneArgFunction() {
             override fun call(self: LuaValue): LuaValue {
-                return LuaValue.valueOf(true)
+                return valueOf(true)
             }
         })
 
@@ -91,12 +91,12 @@ object ProtoUtils {
 
     private fun convertLuaValueToProtoValue(field: FieldDescriptor, value: LuaValue): Any {
         return when (field.type) {
-            Descriptors.FieldDescriptor.Type.STRING -> value.checkstring().toString()
-            Descriptors.FieldDescriptor.Type.INT32, Descriptors.FieldDescriptor.Type.SINT32, Descriptors.FieldDescriptor.Type.SFIXED32 -> value.checkint()
-            Descriptors.FieldDescriptor.Type.INT64, Descriptors.FieldDescriptor.Type.SINT64, Descriptors.FieldDescriptor.Type.SFIXED64 -> value.checklong()
-            Descriptors.FieldDescriptor.Type.FLOAT -> value.checknumber().tofloat()
-            Descriptors.FieldDescriptor.Type.DOUBLE -> value.checknumber().todouble()
-            Descriptors.FieldDescriptor.Type.BOOL -> value.checkboolean()
+            FieldDescriptor.Type.STRING -> value.checkstring().toString()
+            FieldDescriptor.Type.INT32, FieldDescriptor.Type.SINT32, FieldDescriptor.Type.SFIXED32 -> value.checkint()
+            FieldDescriptor.Type.INT64, FieldDescriptor.Type.SINT64, FieldDescriptor.Type.SFIXED64 -> value.checklong()
+            FieldDescriptor.Type.FLOAT -> value.checknumber().tofloat()
+            FieldDescriptor.Type.DOUBLE -> value.checknumber().todouble()
+            FieldDescriptor.Type.BOOL -> value.checkboolean()
             else -> throw IllegalArgumentException("Unsupported field type: ${field.type}")
         }
     }
@@ -106,7 +106,7 @@ object ProtoUtils {
         for (field in descriptor.fields) {
             val fieldName = field.name.split('_').joinToString("") { it.capitalize() }.decapitalize()
 
-            if (field.type == Descriptors.FieldDescriptor.Type.MESSAGE) {
+            if (field.type == FieldDescriptor.Type.MESSAGE) {
                 val nestedLuaTable = luaTable.get("get_$fieldName").call(luaTable).checktable()
                 val nestedBuilder = builder.newBuilderForField(field) as DynamicMessage.Builder
                 copyLuaTableToBuilder(nestedBuilder, nestedLuaTable)

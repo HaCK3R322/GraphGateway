@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message GetDelivery {
+    int32 id = 1;
+    int32 orderId = 2;
+    int32 courierId = 3;
+    string address = 4;
+}

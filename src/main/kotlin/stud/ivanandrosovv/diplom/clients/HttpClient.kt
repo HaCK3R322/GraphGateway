@@ -12,6 +12,8 @@ import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
 import java.net.URI
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 class HttpClient(
     private val restTemplate: RestTemplate,

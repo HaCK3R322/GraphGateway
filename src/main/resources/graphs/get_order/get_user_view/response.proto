@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message GetUserView {
+    int32 id = 1;
+    string fullName = 2;
+    int32 age = 3;
+}

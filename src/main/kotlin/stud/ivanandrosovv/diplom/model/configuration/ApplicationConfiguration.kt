@@ -16,9 +16,13 @@ class ApplicationConfiguration (
             private var graphs: List<GraphConfiguration>? = null
 
             @JsonProperty("rootPath")
-            fun withRootPath(rootPath: String) = apply { this.rootPath = rootPath }
+            fun withRootPath(rootPath: String) = apply {
+                this.rootPath = rootPath
+            }
             @JsonProperty("graphs")
-            fun withGraphs(graphs: List<GraphConfiguration>) = apply { this.graphs = graphs }
+            fun withGraphs(graphs: List<GraphConfiguration>) = apply {
+                this.graphs = graphs
+            }
 
             fun build() = ApplicationConfiguration(
                 rootPath = rootPath!!,

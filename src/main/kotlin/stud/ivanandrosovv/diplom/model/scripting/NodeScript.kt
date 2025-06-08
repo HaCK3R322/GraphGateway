@@ -93,7 +93,10 @@ class NodeScript(
             this.body = body
         }
 
-        log.log(Level.FINE, "[$trace][$nodeName] script loaded in ${Duration.between(start, Instant.now()).toMillis()} ms")
+        log.log(
+            Level.FINE,
+            "[$trace][$nodeName] script loaded in ${Duration.between(start, Instant.now()).toMillis()} ms"
+        )
 
         return NodeScriptRunResult(
             request = httpRequest,

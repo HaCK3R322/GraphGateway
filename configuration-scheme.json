@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "rootPath": {
+      "type": "string"
+    },
+    "graphs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "input": {
+            "type": "string"
+          },
+          "output": {
+            "type": "object",
+            "properties": {
+              "proto": {
+                "type": "string"
+              },
+              "script": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "proto",
+              "script"
+            ]
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "proto": {
+                  "type": "string"
+                },
+                "script": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "proto": {
+                      "type": "string"
+                    },
+                    "timeout": {
+                      "type": "integer"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "proto",
+                    "timeout"
+                  ]
+                },
+                "critical": {
+                  "type": "boolean"
+                },
+                "dependencies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "client": {
+                  "type": "object",
+                  "properties": {
+                    "discovery": {
+                      "type": "string"
+                    },
+                    "timeout": {
+                      "type": "integer"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "discovery",
+                    "timeout"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "proto",
+                "script",
+                "critical",
+                "dependencies",
+                "client"
+              ]
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "input",
+          "output",
+          "nodes"
+        ]
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "rootPath",
+    "graphs"
+  ]
+}

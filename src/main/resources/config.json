@@ -1,20 +1,20 @@
 {
-  "rootPath": "C:/Users/ivanandrosovv/IdeaProjects/GraphGateway/src/main/resources/",
+  "rootPath": "C:/Users/ivanandrosovv/IdeaProjects/GraphGateway/src/main/resources/graphs/",
   "graphs": [
     {
       "name": "person_create",
-      "input": "graphs/person_create/input.pb",
+      "input": "person_create/input.pb",
       "output": {
-        "proto": "graphs/person_create/output.pb",
-        "script": "graphs/person_create/person_create_output.lua"
+        "proto": "person_create/output.pb",
+        "script": "person_create/person_create_output.lua"
       },
       "nodes": [
         {
           "name": "SaveName",
-          "proto": "graphs/person_create/save_name/response.pb",
+          "proto": "person_create/save_name/response.pb",
           "script":  {
-            "path": "graphs/person_create/save_name/request.lua",
-            "proto": "graphs/person_create/save_name/request.pb",
+            "path": "person_create/save_name/request.lua",
+            "proto": "person_create/save_name/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -28,10 +28,10 @@
         },
         {
           "name": "SaveAge",
-          "proto": "graphs/person_create/save_age/response.pb",
+          "proto": "person_create/save_age/response.pb",
           "script":  {
-            "path": "graphs/person_create/save_age/request.lua",
-            "proto": "graphs/person_create/save_age/request.pb",
+            "path": "person_create/save_age/request.lua",
+            "proto": "person_create/save_age/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -45,10 +45,10 @@
         },
         {
           "name": "PersonCreate",
-          "proto": "graphs/person_create/person_create/response.pb",
+          "proto": "person_create/person_create/response.pb",
           "script":  {
-            "path": "graphs/person_create/person_create/request.lua",
-            "proto": "graphs/person_create/person_create/request.pb",
+            "path": "person_create/person_create/request.lua",
+            "proto": "person_create/person_create/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -64,18 +64,18 @@
     },
     {
       "name": "person_get",
-      "input": "graphs/person_get/input.pb",
+      "input": "person_get/input.pb",
       "output": {
-        "proto": "graphs/person_get/output.pb",
-        "script": "graphs/person_get/person_get_output.lua"
+        "proto": "person_get/output.pb",
+        "script": "person_get/person_get_output.lua"
       },
       "nodes": [
         {
           "name": "GetPerson",
-          "proto": "graphs/person_get/get_person/response.pb",
+          "proto": "person_get/get_person/response.pb",
           "script":  {
-            "path": "graphs/person_get/get_person/request.lua",
-            "proto": "graphs/person_get/get_person/request.pb",
+            "path": "person_get/get_person/request.lua",
+            "proto": "person_get/get_person/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -89,10 +89,10 @@
         },
         {
           "name": "GetAge",
-          "proto": "graphs/person_get/get_age/response.pb",
+          "proto": "person_get/get_age/response.pb",
           "script":  {
-            "path": "graphs/person_get/get_age/request.lua",
-            "proto": "graphs/person_get/get_age/request.pb",
+            "path": "person_get/get_age/request.lua",
+            "proto": "person_get/get_age/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -106,10 +106,10 @@
         },
         {
           "name": "GetName",
-          "proto": "graphs/person_get/get_name/response.pb",
+          "proto": "person_get/get_name/response.pb",
           "script":  {
-            "path": "graphs/person_get/get_name/request.lua",
-            "proto": "graphs/person_get/get_name/request.pb",
+            "path": "person_get/get_name/request.lua",
+            "proto": "person_get/get_name/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -125,18 +125,18 @@
     },
     {
       "name": "test_parallelization_graph",
-      "input": "graphs/test_parallelization_graph/input.pb",
+      "input": "test_parallelization_graph/input.pb",
       "output": {
-        "proto": "graphs/test_parallelization_graph/output.pb",
-        "script": "graphs/test_parallelization_graph/test_parallelization_graph_output.lua"
+        "proto": "test_parallelization_graph/output.pb",
+        "script": "test_parallelization_graph/test_parallelization_graph_output.lua"
       },
       "nodes": [
         {
           "name": "NameSave1",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request1.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request1.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -150,10 +150,10 @@
         },
         {
           "name": "NameSave2",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request2.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request2.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -167,10 +167,10 @@
         },
         {
           "name": "NameSave3",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request3.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request3.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -184,10 +184,10 @@
         },
         {
           "name": "NameSave4",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request4.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request4.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -201,10 +201,10 @@
         },
         {
           "name": "NameSave5",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request5.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request5.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -218,10 +218,10 @@
         },
         {
           "name": "NameSave6",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request6.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request6.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -235,10 +235,10 @@
         },
         {
           "name": "NameSave7",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request7.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request7.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -252,10 +252,10 @@
         },
         {
           "name": "NameSave8",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request8.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request8.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -269,10 +269,10 @@
         },
         {
           "name": "NameSave9",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request9.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request9.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -286,10 +286,10 @@
         },
         {
           "name": "NameSave10",
-          "proto": "graphs/test_parallelization_graph/name_save/response.pb",
+          "proto": "test_parallelization_graph/name_save/response.pb",
           "script":  {
-            "path": "graphs/test_parallelization_graph/name_save/request10.lua",
-            "proto": "graphs/test_parallelization_graph/name_save/request.pb",
+            "path": "test_parallelization_graph/name_save/request10.lua",
+            "proto": "test_parallelization_graph/name_save/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -305,18 +305,18 @@
     },
     {
       "name": "dogs",
-      "input": "graphs/dogs/input.pb",
+      "input": "dogs/input.pb",
       "output": {
-        "proto": "graphs/dogs/output.pb",
-        "script": "graphs/dogs/output_script.lua"
+        "proto": "dogs/output.pb",
+        "script": "dogs/output_script.lua"
       },
       "nodes": [
         {
           "name": "GetDescription",
-          "proto": "graphs/dogs/get_description/response.pb",
+          "proto": "dogs/get_description/response.pb",
           "script":  {
-            "path": "graphs/dogs/get_description/request.lua",
-            "proto": "graphs/dogs/get_description/request.pb",
+            "path": "dogs/get_description/request.lua",
+            "proto": "dogs/get_description/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -330,10 +330,10 @@
         },
         {
           "name": "GetMaxLife",
-          "proto": "graphs/dogs/get_max_life/response.pb",
+          "proto": "dogs/get_max_life/response.pb",
           "script":  {
-            "path": "graphs/dogs/get_max_life/request.lua",
-            "proto": "graphs/dogs/get_max_life/request.pb",
+            "path": "dogs/get_max_life/request.lua",
+            "proto": "dogs/get_max_life/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -347,10 +347,10 @@
         },
         {
           "name": "GetName",
-          "proto": "graphs/dogs/get_name/response.pb",
+          "proto": "dogs/get_name/response.pb",
           "script":  {
-            "path": "graphs/dogs/get_name/request.lua",
-            "proto": "graphs/dogs/get_name/request.pb",
+            "path": "dogs/get_name/request.lua",
+            "proto": "dogs/get_name/request.pb",
             "timeout": 1000
           },
           "critical": true,
@@ -366,18 +366,18 @@
     },
     {
       "name": "rps_test",
-      "input": "graphs/rps_test/input.pb",
+      "input": "rps_test/input.pb",
       "output": {
-        "proto": "graphs/rps_test/output.pb",
-        "script": "graphs/rps_test/output_script.lua"
+        "proto": "rps_test/output.pb",
+        "script": "rps_test/output_script.lua"
       },
       "nodes": [
         {
           "name": "GetId",
-          "proto": "graphs/rps_test/get_id/response.pb",
+          "proto": "rps_test/get_id/response.pb",
           "script":  {
-            "path": "graphs/rps_test/get_id/request.lua",
-            "proto": "graphs/rps_test/get_id/request.pb",
+            "path": "rps_test/get_id/request.lua",
+            "proto": "rps_test/get_id/request.pb",
             "timeout": 1000
           },
           "critical": true,

@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+message UserView {
+    int32 id = 1;
+    string fullName = 2;
+    int32 age = 3;
+}
+
+message Courier {
+    int32 id = 1;
+    int32 userId = 2;
+    string status = 3;
+}
+
+message Delivery {
+    int32 id = 1;
+    int32 orderId = 2;
+    int32 courierId = 3;
+    string address = 4;
+}
+
+message FinalizeOrder {
+    int32 orderId = 1;
+    UserView userView = 2;
+    Courier courier = 3;
+    Delivery delivery = 4;
+}
