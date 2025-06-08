@@ -447,7 +447,8 @@
           ],
           "client": {
             "discovery": "http://localhost:9004",
-            "timeout": 1000
+            "timeout": 1000,
+            "retries": 3
           }
         },
         {

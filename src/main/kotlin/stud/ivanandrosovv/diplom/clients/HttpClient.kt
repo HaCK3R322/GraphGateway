@@ -1,7 +1,9 @@
 package stud.ivanandrosovv.diplom.clients
 
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.util.LinkedMultiValueMap
@@ -50,30 +52,41 @@ class HttpClient(
             URI(discovery + request.path)
         )
 
-        val response = try {
-            val responseEntity = restTemplate.exchange(requestEntity, String::class.java)
-            HttpResponse().apply {
-                statusCode = responseEntity.statusCode.value()
-                content = responseEntity.body
-                error = null
-            }
-        } catch (ex: HttpClientErrorException) {
-            HttpResponse().apply {
-                statusCode = ex.statusCode.value()
-                content = null
-                error = ex.responseBodyAsString
-            }
-        } catch (ex: ResourceAccessException) {
-            HttpResponse().apply {
-                statusCode = 500
-                content = null
-                error = ex.message
-            }
-        } catch (ex: Exception) {
-            HttpResponse().apply {
-                statusCode = 500
-                content = null
-                error = ex.message
+        var response: HttpResponse = HttpResponse().apply {
+            statusCode = 500
+            content = null
+            error = "HttpClient unknown error"
+        }
+
+        repeat(retires?.toInt() ?: 1) { attempt ->
+            try {
+                val responseEntity = restTemplate.exchange(requestEntity, String::class.java)
+
+                if (!responseEntity.statusCode.is4xxClientError && !responseEntity.statusCode.is5xxServerError) {
+                    return HttpResponse().apply {
+                        statusCode = responseEntity.statusCode.value()
+                        content = responseEntity.body
+                        error = null
+                    }
+                }
+            }  catch (ex: HttpClientErrorException) {
+                response = HttpResponse().apply {
+                    statusCode = ex.statusCode.value()
+                    content = null
+                    error = ex.responseBodyAsString
+                }
+            } catch (ex: ResourceAccessException) {
+                response = HttpResponse().apply {
+                    statusCode = 500
+                    content = null
+                    error = ex.message
+                }
+            } catch (ex: Exception) {
+                response = HttpResponse().apply {
+                    statusCode = 500
+                    content = null
+                    error = ex.message
+                }
             }
         }
 
