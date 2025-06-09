@@ -22,7 +22,7 @@ class HttpClient(
     private val discovery: String,
     private val timeout: Long? = null,
     private val softTimeout: Long? = null,
-    private val retires: Long? = null
+    private val retires: Long? = null,
 ) : Client {
     constructor(
         configuration: ClientConfiguration,
@@ -91,5 +91,9 @@ class HttpClient(
         }
 
         return response
+    }
+
+    override suspend fun sendCoroutines(request: HttpRequest): HttpResponse {
+        TODO("Not yet implemented")
     }
 }

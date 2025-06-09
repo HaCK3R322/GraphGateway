@@ -88,7 +88,7 @@ class ApiController(
         return ResponseEntity.ok(applicationConfigurationService.getConfiguration())
     }
 
-    @GetMapping("/graphs")
+    @GetMapping("/get/graphs")
     fun returnGraphs(): ResponseEntity<String> {
         var response = ""
 
