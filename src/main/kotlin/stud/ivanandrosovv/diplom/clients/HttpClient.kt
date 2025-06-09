@@ -1,9 +1,7 @@
 package stud.ivanandrosovv.diplom.clients
 
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.util.LinkedMultiValueMap
@@ -14,8 +12,6 @@ import stud.ivanandrosovv.diplom.model.HttpRequest
 import stud.ivanandrosovv.diplom.model.HttpResponse
 import stud.ivanandrosovv.diplom.model.configuration.ClientConfiguration
 import java.net.URI
-import kotlin.random.Random
-import kotlin.random.nextInt
 
 class HttpClient(
     private val restTemplate: RestTemplate,
@@ -91,9 +87,5 @@ class HttpClient(
         }
 
         return response
-    }
-
-    override suspend fun sendCoroutines(request: HttpRequest): HttpResponse {
-        TODO("Not yet implemented")
     }
 }
